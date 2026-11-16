@@ -28,7 +28,12 @@ class CoreSchemaTest extends TestCase
         DB::table('devices')->insert(['id' => $device, 'organization_id' => $organization, 'building_id' => $building, 'name' => 'AHU', 'protocol' => 'bacnet', 'external_id' => 'ahu-1']);
         DB::table('device_points')->insert(['id' => $point, 'device_id' => $device, 'name' => 'Temperature', 'external_id' => 'av-1', 'kind' => 'analog']);
 
-        $this->assertSame(0, DB::table('device_points')->where('id', $point)->value('writable'));
+        $this->assertSame(
+            false,
+            DB::table('device_points')
+                ->where('id', $point)
+                ->value('writable')
+	);
         $this->assertSame(1, DB::table('devices')->where('building_id', $building)->count());
     }
 }
