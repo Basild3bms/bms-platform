@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: BMS API
+  version: 0.1.0
+paths:
+  /api/v1/status:
+    get:
+      summary: API process status
+      responses:
+        '200':
+          description: API is responding
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [service, version, status]
+                properties:
+                  service: { type: string, const: bms-api }
+                  version: { type: string }
+                  status: { type: string, const: ok }

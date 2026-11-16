@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bms}
+      POSTGRES_USER: ${POSTGRES_USER:-bms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+  api:
+    build: ./infra/docker/api
+    working_dir: /srv/api
+    volumes:
+      - ./apps/api:/srv/api
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${POSTGRES_DB:-bms}
+      DB_USERNAME: ${POSTGRES_USER:-bms}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only}
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      REDIS_HOST: redis
+    command: sh -c "composer install --no-interaction && (test -f .env || cp .env.example .env) && (grep -q '^APP_KEY=base64:' .env || php artisan key:generate) && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  web:
+    image: node:22-alpine
+    working_dir: /srv/web
+    volumes:
+      - ./apps/web:/srv/web
+    environment:
+      BMS_API_TARGET: http://api:8000
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "127.0.0.1:5173:5173"
+  edge-agent:
+    build: ./services/edge-agent
+    environment:
+      BMS_EDGE_MODE: simulation
+      BMS_ALLOW_DEVICE_WRITES: "false"
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  redis_data:
