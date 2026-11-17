@@ -25,3 +25,7 @@ Local Compose is development only. Production topology separates the public API 
 ## Repository boundaries
 
 `apps/api` contains API and relational migrations; `apps/web` and `apps/mobile` consume versioned contracts; `services/edge-agent` contains protocol boundary; `packages/contracts` holds public schemas; `infra` holds development images and future deployment assets; `tests` holds cross-component fixtures and scenarios.
+
+## Mobile foundation
+
+The Flutter app has Android and iOS runners and a modular shell. Riverpod holds in-process locale and theme preferences, GoRouter selects sections, and Material UI renders English/French navigation and explicit unavailable states. Dio is configured for the public versioned status route; secure storage is wrapped for a later Sanctum bearer flow. No authenticated request or building data fetch is active. See `FLUTTER_ARCHITECTURE.md` for module boundaries and the contract gap for organization selection.

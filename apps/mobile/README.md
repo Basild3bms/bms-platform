@@ -1,3 +1,3 @@
-# Mobile shell
+# Mobile foundation
 
-The Flutter application starts with one static screen. With the Flutter SDK installed, run `flutter create --platforms=android,ios .` here to generate platform projects, then `flutter test`. iOS builds require macOS and Xcode. No device control exists in this milestone.
+Android and iOS runners, application architecture, and tests are in place. See `../../docs/FLUTTER_SETUP.md`, `../../docs/FLUTTER_ARCHITECTURE.md`, and `../../docs/MOBILE_TEST_PLAN.md`. Authentication and building data screens are not implemented. No device control exists in this milestone.
