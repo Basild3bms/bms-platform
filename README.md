@@ -1,6 +1,6 @@
 # BMS platform
 
-M1 foundation for a hybrid cloud and local gateway building management system. It is a development scaffold; protocol discovery, telemetry ingestion, authentication, equipment commands, and deployment are later milestones.
+Development scaffold for a hybrid cloud and local gateway building management system. M1 is closed; M2.1 adds local identity and organization-scoped user management. Protocol discovery, telemetry ingestion, equipment commands, and deployment are later milestones.
 
 ## Local development
 

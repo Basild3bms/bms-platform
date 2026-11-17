@@ -1,7 +1,36 @@
 openapi: 3.1.0
 info:
   title: BMS API
-  version: 0.1.0
+  version: 0.2.1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum token
+      description: Active user bearer token required; web session identities are rejected.
+  schemas:
+    User:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+    Member:
+      type: object
+      required: [id, role, user_id, name, email]
+      properties:
+        id: { type: string, format: uuid }
+        role: { type: string, enum: [viewer, operator, admin, owner] }
+        user_id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
 paths:
   /api/v1/status:
     get:
@@ -18,3 +47,153 @@ paths:
                   service: { type: string, const: bms-api }
                   version: { type: string }
                   status: { type: string, const: ok }
+  /api/v1/auth/login:
+    post:
+      summary: Exchange credentials for a 12-hour bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, token_type, expires_at, user]
+                properties:
+                  token: { type: string }
+                  token_type: { type: string, const: Bearer }
+                  expires_at: { type: string, format: date-time }
+                  user: { $ref: '#/components/schemas/User' }
+        '401': { description: Invalid credentials or inactive user }
+        '422': { description: Invalid input }
+        '429': { description: More than five failed attempts per email and IP or twenty per IP in one minute }
+  /api/v1/auth/me:
+    get:
+      summary: Current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { description: Missing, expired, or revoked bearer token; inactive user or web session }
+  /api/v1/auth/logout:
+    post:
+      summary: Revoke current token
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Token revoked }
+        '401': { description: Missing, expired, or revoked bearer token; inactive user or web session }
+  /api/v1/organizations/{organization}/users:
+    parameters:
+      - name: organization
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: List up to 100 active organization members
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Up to 100 active members
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Member' }
+        '401': { description: Unauthenticated }
+        '403': { description: Insufficient permission }
+        '404': { description: Organization is not visible to user }
+    post:
+      summary: Create a new user and organization membership
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, role]
+              properties:
+                name: { type: string, maxLength: 255 }
+                email: { type: string, format: email }
+                password: { type: string, format: password, minLength: 12 }
+                role: { type: string, enum: [viewer, operator, admin, owner] }
+      responses:
+        '201':
+          description: User and membership created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user, role]
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+                  role: { type: string, enum: [viewer, operator, admin, owner] }
+        '401': { description: Unauthenticated }
+        '403': { description: Insufficient permission or role too high }
+        '404': { description: Organization is not visible to user }
+        '422': { description: Invalid input }
+  /api/v1/organizations/{organization}/memberships/{membership}:
+    parameters:
+      - name: organization
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+      - name: membership
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      summary: Change a lower-ranked member's role
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { type: string, enum: [viewer, operator, admin, owner] }
+      responses:
+        '200':
+          description: Role changed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, role]
+                properties:
+                  id: { type: string, format: uuid }
+                  role: { type: string, enum: [viewer, operator, admin, owner] }
+        '401': { description: Unauthenticated }
+        '403': { description: Insufficient permission }
+        '404': { description: Organization or membership is not visible }
+        '422': { description: Invalid role }
+    delete:
+      summary: Revoke a lower-ranked membership
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Membership revoked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { description: Unauthenticated }
+        '403': { description: Insufficient permission }
+        '404': { description: Organization or membership is not visible }
