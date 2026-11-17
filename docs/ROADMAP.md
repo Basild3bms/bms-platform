@@ -9,4 +9,4 @@
 | M5 controlled actions | Command authorization, edge safety, automation and schedules | Safety review and independent simulator tests pass. |
 | M6 analytics and release | Energy reporting, mobile workflows, monitoring, backup and deployment hardening | Restore, security and performance gates pass. |
 
-Stop at M1 for the current task. Later milestones require their own implementation and review.
+The current implementation stops after M2.1 for review. M2.2–M2.4 follow the sequence in `M2_IMPLEMENTATION_PLAN.md`; later milestones require their own implementation and review.

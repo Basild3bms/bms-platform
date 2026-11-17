@@ -5,6 +5,23 @@ on:
 jobs:
   api:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        database: [sqlite, pgsql]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: bms_ci
+          POSTGRES_USER: bms
+          POSTGRES_PASSWORD: ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bms -d bms_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     defaults:
       run:
         working-directory: apps/api
@@ -13,10 +30,22 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: sqlite3, pdo_sqlite
+          extensions: sqlite3, pdo_sqlite, pdo_pgsql
       - run: composer install --no-interaction --prefer-dist
       - run: cp .env.example .env && php artisan key:generate
       - run: composer test
+        env:
+          DB_CONNECTION: ${{ matrix.database }}
+          DB_DATABASE: ${{ matrix.database == 'pgsql' && 'bms_ci' || ':memory:' }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USERNAME: bms
+          DB_PASSWORD: ci-only
+          DB_URL: ''
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          BMS_EXPECT_DB_DRIVER: ${{ matrix.database }}
   web:
     runs-on: ubuntu-latest
     defaults:
