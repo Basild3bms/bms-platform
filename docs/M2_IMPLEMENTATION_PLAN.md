@@ -7,8 +7,8 @@ M2 is developed on `feature/m2-implementation` against the local development sta
 ### M2.1 — Identity and security
 
 1. Add Sanctum bearer tokens and a private login/logout flow. There is no public registration or default administrator account. Provision the first administrator through an explicit local administrative process.
-2. Add organization memberships, roles, permissions, and an append-only audit trail. Membership checks require both the organization ID and an active membership; missing or foreign tenant resources return 404. Role grants and user management require explicit permissions. A user cannot grant a role more powerful than their own.
-3. Add policy-backed, organization-scoped user administration and membership endpoints. Validate all input; keep credentials and token values out of audit records. Limit login attempts by both normalized email and client IP; return a generic authentication failure.
+2. Add organization memberships, roles, permissions, and an append-only audit trail protected by database triggers. Membership checks require both the organization ID and an active membership; missing or foreign tenant resources return 404. Role grants and user management require explicit permissions. A user cannot grant a role more powerful than their own.
+3. Add policy-backed, organization-scoped invitation and membership endpoints. Invitation requests have a uniform response for existing and new email addresses; acceptance requires the one-time token and invitee password. Validate all input; keep credentials and token values out of audit records. Limit login attempts by both normalized email and client IP; return a generic authentication failure. List users with bounded pagination, search, and role filtering.
 4. Test authentication, throttling, token revocation, membership lifecycle, cross-tenant isolation, role permissions, validation, and audit events with in-memory SQLite. Verify PostgreSQL migrations against a separate disposable database; never reset the normal development database.
 5. Update OpenAPI, API/security/database documents, and progress. Run API, web, and edge regressions plus Docker checks.
 
@@ -18,7 +18,7 @@ Add organizations, sites, buildings, floors, zones, and rooms with stable UUIDs,
 
 ### M2.3 — Equipment management (after M2.2)
 
-Add tenant-scoped categories, assets, manufacturers, profiles, gateways, devices, and points. Enforce building/device tenant consistency in the database and API. Validate protocol configuration and duplicate identities. Keep points read-only by default and expose no physical write route. Add adapter tests before any protocol implementation.
+Add tenant-scoped categories, assets, manufacturers, profiles, gateways, devices, and points. The M2.1 database gate already rejects building/device tenant mismatch; enforce the same check in M2.3 API authorization and validation. Validate protocol configuration and duplicate identities. Keep points read-only by default and expose no physical write route. Add adapter tests before any protocol implementation.
 
 ### M2.4 — Web application (after API contracts)
 

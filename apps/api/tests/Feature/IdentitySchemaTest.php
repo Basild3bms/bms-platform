@@ -74,4 +74,55 @@ class IdentitySchemaTest extends TestCase
         $this->expectException(QueryException::class);
         DB::table('organizations')->where('id', $organization)->delete();
     }
+
+    public function test_audit_events_cannot_be_updated_or_deleted(): void
+    {
+        $id = (string) Str::uuid();
+        DB::table('audit_events')->insert(['id' => $id, 'action' => 'security.test', 'created_at' => now()]);
+
+        try {
+            DB::transaction(fn () => DB::table('audit_events')->where('id', $id)->update(['action' => 'changed']));
+            $this->fail('Audit update was accepted.');
+        } catch (QueryException $exception) {
+            $this->assertDatabaseHas('audit_events', ['id' => $id, 'action' => 'security.test']);
+        }
+
+        $this->expectException(QueryException::class);
+        DB::transaction(fn () => DB::table('audit_events')->where('id', $id)->delete());
+    }
+
+    public function test_device_cannot_reference_a_building_in_another_organization(): void
+    {
+        $own = $this->organization();
+        $foreign = $this->organization();
+        $building = (string) Str::uuid();
+        DB::table('buildings')->insert(['id' => $building, 'organization_id' => $foreign, 'name' => 'Foreign', 'code' => 'foreign', 'timezone' => 'UTC']);
+
+        $this->expectException(QueryException::class);
+        DB::table('devices')->insert([
+            'id' => (string) Str::uuid(), 'organization_id' => $own, 'building_id' => $building,
+            'name' => 'Device', 'protocol' => 'test', 'external_id' => 'one',
+        ]);
+    }
+
+    public function test_device_and_building_cannot_be_moved_across_tenants(): void
+    {
+        $own = $this->organization();
+        $foreign = $this->organization();
+        $building = (string) Str::uuid();
+        $device = (string) Str::uuid();
+        DB::table('buildings')->insert(['id' => $building, 'organization_id' => $own, 'name' => 'Own', 'code' => 'own', 'timezone' => 'UTC']);
+        DB::table('devices')->insert(['id' => $device, 'organization_id' => $own, 'building_id' => $building,
+            'name' => 'Device', 'protocol' => 'test', 'external_id' => 'one']);
+
+        try {
+            DB::transaction(fn () => DB::table('devices')->where('id', $device)->update(['organization_id' => $foreign]));
+            $this->fail('Device tenant update was accepted.');
+        } catch (QueryException $exception) {
+            $this->assertDatabaseHas('devices', ['id' => $device, 'organization_id' => $own]);
+        }
+
+        $this->expectException(QueryException::class);
+        DB::transaction(fn () => DB::table('buildings')->where('id', $building)->update(['organization_id' => $foreign]));
+    }
 }
