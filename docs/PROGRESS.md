@@ -1,5 +1,13 @@
 # Progress log
 
+## M2.1F Flutter foundation — 2026-11-17
+
+- Generated Android and iOS runners with Flutter 3.50.0 without replacing the M1 overview behavior. Set both application identifiers to `com.bms.mobile`, Android minimum API 24, iOS minimum 15, and ignored local build and signing artifacts. Identifier ownership and release signing remain distribution tasks.
+- Added Riverpod, Dio, GoRouter, secure storage boundary, reusable unavailable UI, English/French labels, and light/dark themes. The overview explicitly says there is no live building data. Authentication, tenant selection, and data features remain pending review; the API contract lacks a current-user organization list.
+- Added Flutter CI, setup and architecture documentation, a mobile test plan, and `M2_1F_IMPLEMENTATION_PLAN.md`.
+- Flutter 3.50.0/Dart 3.14.0 and Material UI 1.11.1 were verified locally. Dependency resolution selected Riverpod 3.5.0, Dio 5.11.1, GoRouter 18.1.4, and secure storage 11.2.0. `flutter pub get` passed, `flutter analyze` reported no issues, all five mobile tests passed, and the existing `composer test` backend regression suite passed 35 tests with one skipped and 148 assertions. Flutter CI and its Android debug build have not run remotely yet.
+- Flutter Doctor found no Android SDK in WSL, so an Android build cannot run here. iOS builds require macOS/Xcode. No development database reset, production access, deployment, or equipment write occurred.
+
 ## M1 closure — 2026-11-17
 
 M1 passed local acceptance, remote GitHub CI, and pull request #1. Merge commit: `dbeee99`. The local evidence below remains the validation record. Flutter runtime analysis and widget tests remain deferred because the Flutter SDK and platform runners are unavailable; the M1 gate required the source shell and test to exist. Physical equipment writes remain disabled.
