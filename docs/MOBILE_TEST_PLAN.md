@@ -1,6 +1,6 @@
 # Mobile test plan
 
-The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. Windows emulator runtime connectivity must be verified separately from mock tests.
+The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. On 2026-11-18, the updated debug APK on `emulator-5554` displayed the overview and reached the public API status route. Authentication, organization access, and building data still require separate runtime tests.
 
 ## Foundation gate
 

@@ -12,9 +12,9 @@ flutter test
 
 The Android development default is `http://10.0.2.2:8000`, the emulator alias for the host loopback address. Other development platforms default to `http://127.0.0.1:8000`. Override either with `--dart-define=BMS_API_BASE_URL=https://dev.example.test`. Development HTTP is accepted only for localhost, 127.0.0.1, the IPv6 loopback address, and 10.0.2.2. Release builds require an explicit HTTPS origin. The Android debug manifest allows cleartext only for local development destinations; the release network security policy explicitly denies cleartext, including localhost on Android 17. The overview's **Check API connection** button requests only the public `/api/v1/status` endpoint and reports API process responsiveness, not database, Redis, or building connectivity. Do not point this foundation at production buildings.
 
-The Windows environment has been reported as having an operational Flutter SDK at `C:\dev\flutter\bin\flutter.bat`, an Android 17/API 37 emulator, Android NDK 28.2.13676358, an installed BMS APK, a running BMS process, and Windows access to the Laravel API. WSL remains the primary development environment and cannot locate the Windows Android SDK. The app's direct connection to the API has not yet been verified on Windows.
+The Windows environment has an operational Flutter SDK at `C:\dev\flutter\bin\flutter.bat` and an Android 17/API 37 emulator. On 2026-11-18, commit `54413b0` was compiled into an updated debug APK, installed, and launched on `emulator-5554`. The overview displayed correctly, and **Check API connection** returned **API process reachable**. This confirms emulator-to-API access to the public status endpoint only; authentication, organization access, and building data were not exercised. WSL remains the primary development environment and cannot locate the Windows Android SDK.
 
-Use the dedicated Windows Git checkout at `C:\projects\bms-platform` for Android compilation and runtime testing. Once the new branch has been committed and pushed with approval, run these commands in Windows PowerShell. Stop `flutter run` with Ctrl+C after the on-screen check. Do not run Windows Flutter from the WSL UNC path.
+Use the dedicated Windows Git checkout at `C:\projects\bms-platform` for repeat Android compilation and runtime testing. The feature branch is already pushed; run these commands in Windows PowerShell after fetching it. Stop `flutter run` with Ctrl+C after the on-screen check. Do not run Windows Flutter from the WSL UNC path.
 
 ```powershell
 $Repo = 'C:\projects\bms-platform'
@@ -34,7 +34,7 @@ Set-Location (Join-Path $Repo 'apps\mobile')
 & $Flutter run -d emulator-5554 --debug --dart-define=BMS_API_BASE_URL=http://10.0.2.2:8000
 ```
 
-Tap **Check API connection** in the app. **API process reachable** is the success result. A Windows host response alone does not prove emulator-to-API connectivity. Avoid putting bearer tokens or credentials into command output.
+Tap **Check API connection** in the app. **API process reachable** is the success result and was observed on `emulator-5554` for commit `54413b0`. A Windows host response alone would not prove emulator-to-API connectivity. Avoid putting bearer tokens or credentials into command output.
 
 The Windows Android SDK and Java toolchain are already installed. On macOS with Xcode and CocoaPods, open the generated iOS project and build its Runner scheme. iOS builds cannot run on Linux or WSL. The Flutter CLI in this WSL installation is at `/home/basil/development/flutter/bin/flutter` and is not on `PATH`.
 
