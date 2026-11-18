@@ -28,4 +28,6 @@ Local Compose is development only. Production topology separates the public API 
 
 ## Mobile foundation
 
-The Flutter app has Android and iOS runners and a modular shell. Riverpod holds in-process locale and theme preferences, GoRouter selects sections, and Material UI renders English/French navigation and explicit unavailable states. Dio is configured for the public versioned status route; secure storage is wrapped for a later Sanctum bearer flow. No authenticated request or building data fetch is active. See `FLUTTER_ARCHITECTURE.md` for module boundaries and the contract gap for organization selection.
+The authenticated organization discovery route joins active memberships to organizations and current role permissions in one tenant-bound query. It supplies only the caller's organization IDs, names, roles, and permission codes for future mobile selection. Server authorization remains authoritative for every scoped request.
+
+The Flutter app has Android and iOS runners and a modular shell. Riverpod holds in-process locale and theme preferences, GoRouter selects sections, and Material UI renders English/French navigation and explicit unavailable states. Dio is configured for the public versioned status route; secure storage is wrapped for a later Sanctum bearer flow. No authenticated request or building data fetch is active. See `FLUTTER_ARCHITECTURE.md` for module boundaries and the future organization selection flow.

@@ -1,5 +1,7 @@
 # Mobile test plan
 
+The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. On 2026-11-18, the updated debug APK on `emulator-5554` displayed the overview and reached the public API status route. Authentication, organization access, and building data still require separate runtime tests.
+
 ## Foundation gate
 
 - `flutter pub get` resolves the locked dependencies with Flutter 3.50.0.
@@ -11,7 +13,7 @@
 
 ## Authentication gate after foundation review
 
-Before implementing authentication, add tests for login success and generic failure, 401/422/429 handling, bearer header attachment, secure token write/read/delete, expiry and revocation, disabled user response, unauthorized route redirects, and logout. Add organization selection tests only after the API contract exposes the user's active memberships. Verify every future tenant-scoped request carries an explicit organization identifier and that unauthorized or foreign tenant responses never display cached data.
+Before implementing authentication, add tests for login success and generic failure, 401/422/429 handling, bearer header attachment, secure token write/read/delete, expiry and revocation, disabled user response, unauthorized route redirects, and logout. The organization discovery contract now exposes the user's active memberships; add selection tests when implementing the selector. Verify every future tenant-scoped request carries an explicit organization identifier and that unauthorized or foreign tenant responses never display cached data.
 
 ## Later feature gates
 
