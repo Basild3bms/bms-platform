@@ -21,6 +21,15 @@ class AppStrings {
   String get noLiveData => isFrench
       ? 'Aucune donnée de bâtiment en temps réel n’est disponible.'
       : 'No live building data is available.';
+  String get checkApi =>
+      isFrench ? 'Vérifier la connexion API' : 'Check API connection';
+  String get apiReachable =>
+      isFrench ? 'Processus API accessible' : 'API process reachable';
+  String get apiUnavailable =>
+      isFrench ? 'Connexion API indisponible' : 'API connection unavailable';
+  String get statusScope => isFrench
+      ? 'Ce contrôle vérifie uniquement la réponse du processus API.'
+      : 'This checks only whether the API process responds.';
   String get language => isFrench ? 'Langue' : 'Language';
   String get appearance => isFrench ? 'Apparence' : 'Appearance';
   String get light => isFrench ? 'Clair' : 'Light';

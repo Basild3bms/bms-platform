@@ -16,6 +16,7 @@ Route::post('/v1/auth/login', [AuthController::class, 'login']);
 Route::post('/v1/invitations/accept', [InvitationController::class, 'accept'])->middleware('throttle:5,1');
 Route::middleware(['auth:sanctum', RequireActiveBearerToken::class])->prefix('v1')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::get('/auth/organizations', [AuthController::class, 'organizations']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/organizations/{organization}/users', [OrganizationUserController::class, 'index']);
     Route::post('/organizations/{organization}/users', [OrganizationUserController::class, 'store']);

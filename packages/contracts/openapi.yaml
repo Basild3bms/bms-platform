@@ -33,6 +33,16 @@ components:
         user_id: { type: integer }
         name: { type: string }
         email: { type: string, format: email }
+    OrganizationAccess:
+      type: object
+      required: [id, name, role, permissions]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        role: { type: string, enum: [viewer, operator, admin, owner] }
+        permissions:
+          type: array
+          items: { type: string }
 paths:
   /api/v1/status:
     get:
@@ -94,6 +104,25 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/User' }
         '401': { description: 'Missing, expired, or revoked bearer token; inactive user or web session' }
+  /api/v1/auth/organizations:
+    get:
+      operationId: listCurrentUserOrganizations
+      summary: List the active organizations accessible to the current user
+      description: Returns only active memberships for the authenticated user. Roles and permissions are derived from the current server role mapping. Organization status is not modeled in M2.1.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Minimal organization access list; an empty list is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/OrganizationAccess' }
+        '401': { description: 'Missing, invalid, expired, or revoked bearer token; inactive user or web session' }
   /api/v1/auth/logout:
     post:
       operationId: logout

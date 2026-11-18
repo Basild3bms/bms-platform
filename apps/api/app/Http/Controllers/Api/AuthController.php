@@ -71,6 +71,35 @@ class AuthController extends Controller
         return response()->json($request->user()->only(['id', 'name', 'email']));
     }
 
+    public function organizations(Request $request): JsonResponse
+    {
+        $memberships = DB::table('organization_memberships as m')
+            ->join('organizations as o', 'o.id', '=', 'm.organization_id')
+            ->leftJoin('role_permissions as rp', 'rp.role_code', '=', 'm.role')
+            ->where('m.user_id', $request->user()->id)
+            ->where('m.active', true)
+            ->select('o.id', 'o.name', 'm.role', 'rp.permission_code')
+            ->orderBy('o.name')->orderBy('o.id')->orderBy('rp.permission_code')
+            ->get();
+
+        $organizations = [];
+        foreach ($memberships as $membership) {
+            if (! isset($organizations[$membership->id])) {
+                $organizations[$membership->id] = [
+                    'id' => $membership->id,
+                    'name' => $membership->name,
+                    'role' => $membership->role,
+                    'permissions' => [],
+                ];
+            }
+            if ($membership->permission_code !== null) {
+                $organizations[$membership->id]['permissions'][] = $membership->permission_code;
+            }
+        }
+
+        return response()->json(['data' => array_values($organizations)]);
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $user = $request->user();

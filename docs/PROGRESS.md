@@ -1,5 +1,16 @@
 # Progress log
 
+## M2.1F organization discovery and API connectivity preparation — 2026-11-18
+
+Final review corrected the Windows workflow to use `C:\projects\bms-platform` with `C:\dev\flutter\bin\flutter.bat` after an approved branch push. It also added an explicit release network security policy to deny Android 17's implicit localhost cleartext allowance. The Windows app-to-API runtime check remains pending.
+
+- Created local branch `feature/m2-1f-organization-discovery` at validated Flutter foundation commit `04735e7`; PR #3 remains open and untouched.
+- Added `GET /api/v1/auth/organizations` behind existing Sanctum bearer and active-user middleware. A single tenant-filtered query returns only active memberships with minimal organization identity and current server-derived role permissions. M2.1 has no organization status flag.
+- Test-first evidence: eight discovery tests initially failed because the route was absent, then passed. A ninth test reproduced an unauthenticated no-`Accept` request returning 500 due to Laravel's missing login redirect route. The API redirect was corrected; direct local HTTP now returns JSON 401. Final full SQLite `composer test` passed 44 tests, one skipped, 180 assertions. Full PostgreSQL tests passed 45 tests and 181 assertions against the newly created `bms_m2_1f_isolated_check` database; the normal development database was untouched. Remote CI for these uncommitted changes has not run.
+- Added environment-specific Flutter API origin validation, a debug-only Android local cleartext exception, release cleartext denial, and an on-demand public status check in the overview. Automated configuration and widget tests use mocks; direct Windows emulator-to-API connectivity is not yet verified.
+- Final checks: Flutter analysis found no issues and all 12 mobile tests passed; the web build passed in its Docker container, and both edge tests passed. The new PHP files pass Pint, but repository-wide Pint flags untouched `CoreSchemaTest.php`. The WSL host web build remains blocked by its existing missing Rollup optional binary; an offline dependency reinstall could not replace container-owned `node_modules` files. OpenAPI structure, Android manifest/network XML, and `git diff --check` passed. Android runtime and remote CI remain pending.
+- No development database was reset, and no production access, equipment write, mobile login, commit, push, merge, or deployment occurred.
+
 ## M2.1F Flutter foundation — 2026-11-17
 
 - Generated Android and iOS runners with Flutter 3.50.0 without replacing the M1 overview behavior. Set both application identifiers to `com.bms.mobile`, Android minimum API 24, iOS minimum 15, and ignored local build and signing artifacts. Identifier ownership and release signing remain distribution tasks.

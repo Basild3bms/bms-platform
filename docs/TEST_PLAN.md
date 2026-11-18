@@ -1,5 +1,12 @@
 # Test plan
 
+## M2.1F organization discovery and mobile connectivity
+
+- API feature tests cover missing, invalid, expired, and revoked bearer tokens; disabled accounts and web sessions; no, one, and multiple active memberships; revoked and inactive memberships; foreign tenants; all four roles; current server-derived permissions; an exact minimal JSON response; and JSON 401 responses without an `Accept` header.
+- Existing authentication tests and the full Laravel suite must pass on SQLite and an isolated PostgreSQL database. Remote CI should repeat both paths after these changes are committed; never reset the development database.
+- Flutter tests cover Android emulator versus host defaults, explicit HTTPS configuration, rejection of release HTTP and nonlocal development HTTP, malformed origins, and on-demand status checks and network failure states.
+- Windows emulator runtime validation must confirm the status request from the app. A passing mock test or a Windows host request alone does not prove Flutter-to-API connectivity.
+
 ## M1
 
 - Laravel feature test verifies the versioned status endpoint and migration relationships/default nonwritable point.
