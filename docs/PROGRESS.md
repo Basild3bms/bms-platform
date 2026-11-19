@@ -1,5 +1,12 @@
 # Progress log
 
+## M2.2A secure buildings API — 2026-11-19
+
+- On local `feature/m2-2-building-management`, added a reversible migration for `buildings.view` (viewer, operator, admin, owner) and `buildings.manage` (admin, owner) without changing previously executed migrations. Existing user and role permissions remain intact.
+- Added a UUID Building model and authenticated, organization-scoped list, create, detail, and update routes. Active membership and server role mapping control 404/403 outcomes. Building UUIDs are resolved under the requested organization, and request bodies cannot set `organization_id`. Creates and updates append actor-, organization-, and building-scoped audit events in the same transaction. No DELETE or equipment command route was added.
+- Test-first building coverage initially failed on missing routes and permissions, then passed. Final SQLite suite: 57 passed, 1 skipped, 296 assertions. Isolated PostgreSQL suite: 58 passed, 297 assertions. Existing organization discovery tests were updated to expect the two new server-derived permissions. The Vue container build, both edge tests, all 64 Flutter tests, Flutter analysis, PHP Pint, OpenAPI structure, and `git diff --check` passed.
+- The new migration was applied only inside isolated test databases. A final read-only status check found that the four earlier M2.1 migrations are now applied in the normal development PostgreSQL database; the new M2.2A building-permission migration alone is pending. No normal development database migration, account change, reset, production connection, physical write, commit, or push was performed during M2.2A work. Local API runtime for M2.2A awaits an approved development database migration.
+
 ## Local development account check — 2026-11-19
 
 - Read-only inspection of the running local Docker API's PostgreSQL `bms` database found zero users, zero organizations, and no `organization_memberships` table. Four M2.1 identity and hardening migrations are pending. There is no active development account with an organization membership for authenticated Android testing.

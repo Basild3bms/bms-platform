@@ -10,4 +10,25 @@ M2.1 adds `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, and `POST /api/v1/au
 
 The Stage 3 Flutter client uses these existing response shapes: login returns `token`, `token_type: Bearer`, `expires_at`, and `user` (`id`, `name`, `email`); `/auth/me` returns the same user fields; organization discovery returns `data` entries containing `id`, `name`, `role`, and `permissions`; logout returns HTTP 200 after revocation. The client treats login 401 as a generic credential/account failure, 422 as invalid input, 429 as rate limiting, and protected 401 as an invalid session. Network and server errors keep protected navigation closed during restoration. The selected organization ID is not a permission claim. Stage 3 adds no backend endpoint or tenant data call.
 
+## M2.2A buildings
+
+All four routes require an active Sanctum bearer account and an active membership in `{organization}`:
+
+| Method and path | Permission | Success |
+|---|---|---|
+| `GET /api/v1/organizations/{organization}/buildings` | `buildings.view` | 200, `{data: [...], meta: {current_page, per_page, total, last_page}}` |
+| `POST /api/v1/organizations/{organization}/buildings` | `buildings.manage` | 201, `{data: building}` |
+| `GET /api/v1/organizations/{organization}/buildings/{building}` | `buildings.view` | 200, `{data: building}` |
+| `PATCH /api/v1/organizations/{organization}/buildings/{building}` | `buildings.manage` | 200, `{data: building}` |
+
+Viewer and operator receive `buildings.view`; admin and owner receive both permissions. Lists are sorted by code and ID and accept `page` from 1 and `per_page` from 1 to 100 (default 25). The building object contains `id`, `organization_id`, `name`, `code`, nullable `address`, `timezone`, `created_at`, and `updated_at`. The server generates the UUID and binds the organization from the URL and active membership. Create requires `name` (1–255 characters), `code` (1–64 letters, digits, `_` or `-`, starting with a letter or digit), and a valid timezone; `address` is optional and nullable up to 255 characters. Patch accepts at least one of those fields. Codes are unique within each organization. `organization_id` in a request body is rejected.
+
+Example body for `POST /api/v1/organizations/{organization}/buildings` (send the bearer token privately in the Authorization header):
+
+```json
+{"name":"North Office","code":"N-001","address":"1 Example Street","timezone":"Europe/Paris"}
+```
+
+Missing or invalid bearer tokens and inactive accounts return 401. Active members without the needed permission return 403. An inaccessible organization or a building UUID outside that organization returns 404. Validation errors, duplicate codes, and client-supplied `organization_id` return 422. Successful creates and updates append `building.created` or `building.updated` audit events with organization, actor, and building IDs. Building deletion is not exposed because existing device foreign keys cascade on deletion.
+
 Future inventory collections will use cursor pagination and bounded filters; the M2.1 user list uses bounded numbered pages. Future mutations will use idempotency keys where retries can cause effects, return stable error codes, and create audit events. Telemetry will include source timestamp, quality and unit; command responses will distinguish accepted, executed and observed outcomes. WebSocket channels and MQTT topics will be tenant scoped and separately authorized. No control endpoint exists in M2.1.

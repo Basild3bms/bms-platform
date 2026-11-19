@@ -95,7 +95,7 @@ class OrganizationDiscoveryTest extends TestCase
                 'id' => $organizationId,
                 'name' => 'North Campus',
                 'role' => 'owner',
-                'permissions' => ['roles.manage', 'users.manage', 'users.view'],
+                'permissions' => ['buildings.manage', 'buildings.view', 'roles.manage', 'users.manage', 'users.view'],
             ]]]);
     }
 
@@ -112,10 +112,10 @@ class OrganizationDiscoveryTest extends TestCase
 
         $response = $this->withToken($token)->getJson('/api/v1/auth/organizations')->assertOk()->assertJsonCount(4, 'data');
         $byRole = collect($response->json('data'))->keyBy('role');
-        $this->assertSame([], $byRole['viewer']['permissions']);
-        $this->assertSame([], $byRole['operator']['permissions']);
-        $this->assertSame(['users.manage', 'users.view'], $byRole['admin']['permissions']);
-        $this->assertSame(['roles.manage', 'users.manage', 'users.view'], $byRole['owner']['permissions']);
+        $this->assertSame(['buildings.view'], $byRole['viewer']['permissions']);
+        $this->assertSame(['buildings.view'], $byRole['operator']['permissions']);
+        $this->assertSame(['buildings.manage', 'buildings.view', 'users.manage', 'users.view'], $byRole['admin']['permissions']);
+        $this->assertSame(['buildings.manage', 'buildings.view', 'roles.manage', 'users.manage', 'users.view'], $byRole['owner']['permissions']);
         foreach ($organizations as $role => $id) {
             $this->assertSame($id, $byRole[$role]['id']);
             $this->assertSame(['id', 'name', 'role', 'permissions'], array_keys($byRole[$role]));
@@ -139,7 +139,7 @@ class OrganizationDiscoveryTest extends TestCase
 
         $this->withToken($token)->getJson('/api/v1/auth/organizations')
             ->assertOk()->assertExactJson(['data' => [[
-                'id' => $ownId, 'name' => 'Own', 'role' => 'viewer', 'permissions' => [],
+                'id' => $ownId, 'name' => 'Own', 'role' => 'viewer', 'permissions' => ['buildings.view'],
             ]]]);
     }
 
@@ -154,6 +154,7 @@ class OrganizationDiscoveryTest extends TestCase
         ]);
 
         $this->withToken($token)->getJson('/api/v1/auth/organizations')
-            ->assertOk()->assertJsonPath('data.0.permissions.0', 'users.view');
+            ->assertOk()->assertJsonPath('data.0.permissions.0', 'buildings.view')
+            ->assertJsonPath('data.0.permissions.1', 'users.view');
     }
 }
