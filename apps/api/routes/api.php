@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BuildingController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\OrganizationUserController;
 use App\Http\Middleware\RequireActiveBearerToken;
@@ -18,6 +19,10 @@ Route::middleware(['auth:sanctum', RequireActiveBearerToken::class])->prefix('v1
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::get('/auth/organizations', [AuthController::class, 'organizations']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/organizations/{organization}/buildings', [BuildingController::class, 'index']);
+    Route::post('/organizations/{organization}/buildings', [BuildingController::class, 'store']);
+    Route::get('/organizations/{organization}/buildings/{building}', [BuildingController::class, 'show']);
+    Route::patch('/organizations/{organization}/buildings/{building}', [BuildingController::class, 'update']);
     Route::get('/organizations/{organization}/users', [OrganizationUserController::class, 'index']);
     Route::post('/organizations/{organization}/users', [OrganizationUserController::class, 'store']);
     Route::patch('/organizations/{organization}/memberships/{membership}', [OrganizationUserController::class, 'update']);
