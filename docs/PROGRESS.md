@@ -1,5 +1,18 @@
 # Progress log
 
+## Local development account check — 2026-11-19
+
+- Read-only inspection of the running local Docker API's PostgreSQL `bms` database found zero users, zero organizations, and no `organization_memberships` table. Four M2.1 identity and hardening migrations are pending. There is no active development account with an organization membership for authenticated Android testing.
+- The local-only `bms:bootstrap-organization` command creates an organization and active owner membership and prompts privately for a password of 12–128 characters. Applying the pending migrations and creating credentials require a separate user action; neither was performed in this check. Normal development data was not reset or modified.
+
+## M2.1F Stage 3 mobile authentication implementation — 2026-11-19
+
+- Implemented the existing Laravel/OpenAPI authentication contract in Flutter on local `feature/m2-1f-mobile-authentication`, starting from `6e564423a64ec31850cf603320853a8466ceaa2c`. Tests were added before the corresponding infrastructure and UI. No backend endpoint, dependency upgrade, or tenant data feature was added.
+- Added typed login/current-user/organization responses; public and bearer-authenticated Dio boundaries; secure token, expiry, and selected organization storage; server-validated restoration; expiry and 401 invalidation; retry states; request cancellation and generation checks; English/French login; protected GoRouter navigation; organization selection, refresh, switching, and access-loss handling; and logout that reports uncertain server revocation or local deletion. The dashboard keeps unavailable states for unimplemented modules, including energy management and reports.
+- Automated checks after the security review: Flutter analysis found no issues, all 64 Flutter tests passed, and Dart formatting is clean. Backend SQLite passed 44 tests, 1 skipped, 180 assertions; isolated PostgreSQL `bms_m2_1f_isolated_check` passed 45 tests, 181 assertions. The prior Stage 3 edge tests and web container build passed; neither component changed during this review. OpenAPI YAML parsed with all four auth operations present; Android XML parsed with backup disabled and release cleartext denied; `git diff --check` passed. The WSL host web build still cannot load its GNU Rollup optional binary from the container-owned `node_modules`.
+- Security review: no credentials or bearer values are logged by the new mobile source; public status and login are bearer-free; restored sessions cannot enter the shell before server validation; selected organization and displayed permissions are UI context only. No tenant data or equipment command is requested. A regression test reproduced token recovery after failed secure deletion. The client now invalidates the token in secure storage before deleting it; restart and repeated-logout tests cover the deletion-only failure and preserve an unconfirmed revocation warning. If secure overwrite and deletion both fail while server revocation is unavailable, the old token can still be restored after restart. This combined failure requires an architectural decision before distribution.
+- The combined secure-storage overwrite/delete failure with unavailable server revocation remains an unresolved **commercial-release blocker**. The architecture decision accepts this risk for development and testing only, preserves automatic server-validated restoration, and authorizes feature-branch commit and remote CI. Authenticated Windows Android runtime, iOS build, release signing, MFA/onboarding, and commercial hardening remain pending. The 2026-11-18 emulator evidence covers only public status. Windows PowerShell commands and manual acceptance steps are in `FLUTTER_SETUP.md`. No deployment, database reset, production connection, or physical write was made.
+
 ## M2.1F Android runtime validation and mobile authentication planning — 2026-11-18
 
 - Windows validation report for commit `54413b0`: the updated debug APK compiled, installed, and launched on `emulator-5554` (Android 17/API 37); the overview displayed correctly, and **Check API connection** returned **API process reachable**. This establishes direct emulator access to the public `/api/v1/status` route. It does not validate mobile login, bearer requests, organization access, release transport, or building data.
@@ -85,3 +98,17 @@ On 2026-11-16, `composer test` in `apps/api` passed 4 tests and 6 assertions, in
 ## Known limitations
 
 No authentication, tenant data APIs, protocol adapters, MQTT/WebSocket transport, historical telemetry or control features are implemented in M1. These belong to later milestones. The local development stack has been booted, including the inert edge process, and its API, web, PostgreSQL and Redis paths verified. Host PHP still lacks `pdo_pgsql`, but PostgreSQL migrations were verified inside the API container. The generated Laravel `.env` and SQLite file are local ignored artifacts from `composer create-project`. Flutter SDK installation and platform runner generation are needed before mobile analysis and widget tests; iOS builds additionally require macOS/Xcode. CI jobs are configured, but no remote CI run was verified in this check. Equipment writes remain disabled by default and in Compose.
+## M2.1F Android authentication validation — 2026-11-19
+
+- Applied the pending M2.1 PostgreSQL migrations locally.
+- Created a local development organization with an active owner membership.
+- Corrected Laravel database configuration for Docker PostgreSQL.
+- Confirmed successful communication between Android and Laravel.
+- Successfully logged in using the Flutter Android application.
+- Successfully selected the BMS Local Development organization.
+- Verified session persistence after closing and reopening Android BMS.
+- Verified logout returns to the Sign in screen.
+- Verified the application remains logged out after reopening.
+- Server-side token revocation still requires independent verification.
+- Secure-storage failure handling remains a commercial-release blocker.
+- No production database or physical BMS equipment was modified.

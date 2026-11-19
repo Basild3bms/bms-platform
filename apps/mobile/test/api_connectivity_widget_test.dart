@@ -4,6 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/authenticated_session.dart';
+import 'package:bms_mobile/src/features/auth/session_controller.dart';
+
 void main() {
   testWidgets('overview checks the contracted API status on demand',
       (tester) async {
@@ -19,7 +22,10 @@ void main() {
     }));
 
     await tester.pumpWidget(ProviderScope(
-      overrides: [dioProvider.overrideWithValue(dio)],
+      overrides: [
+        dioProvider.overrideWithValue(dio),
+        sessionControllerProvider.overrideWith(AuthenticatedTestSession.new)
+      ],
       child: const BmsApp(),
     ));
     await tester.pumpAndSettle();
@@ -41,7 +47,10 @@ void main() {
     }));
 
     await tester.pumpWidget(ProviderScope(
-      overrides: [dioProvider.overrideWithValue(dio)],
+      overrides: [
+        dioProvider.overrideWithValue(dio),
+        sessionControllerProvider.overrideWith(AuthenticatedTestSession.new)
+      ],
       child: const BmsApp(),
     ));
     await tester.pumpAndSettle();

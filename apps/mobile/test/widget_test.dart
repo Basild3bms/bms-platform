@@ -3,16 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'support/authenticated_session.dart';
+import 'package:bms_mobile/src/features/auth/session_controller.dart';
+
 void main() {
   testWidgets('shows the M1 foundation screen', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: BmsApp()));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      sessionControllerProvider.overrideWith(AuthenticatedTestSession.new),
+    ], child: const BmsApp()));
     await tester.pumpAndSettle();
     expect(find.text('BMS mobile — M1 foundation'), findsOneWidget);
     expect(find.text('No live building data is available.'), findsOneWidget);
   });
 
   testWidgets('navigation marks unavailable features', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: BmsApp()));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      sessionControllerProvider.overrideWith(AuthenticatedTestSession.new),
+    ], child: const BmsApp()));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();
@@ -22,7 +29,9 @@ void main() {
   });
 
   testWidgets('language selection translates the shell', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: BmsApp()));
+    await tester.pumpWidget(ProviderScope(overrides: [
+      sessionControllerProvider.overrideWith(AuthenticatedTestSession.new),
+    ], child: const BmsApp()));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();

@@ -11,9 +11,11 @@ The Stage 2 configuration gate adds API origin tests and an overview status-butt
 - `flutter doctor -v` records Android and iOS build availability. Mobile CI builds a debug APK on its Android-equipped runner. Run `flutter build apk --debug` locally when the Android SDK is installed. Build the iOS Runner on macOS/Xcode.
 - `composer test` in `apps/api` protects the existing backend contract. Mobile tests never access the development database.
 
-## Authentication gate after foundation review
+## Stage 3 authentication gate
 
-Before implementing authentication, add tests for login success and generic failure, 401/422/429 handling, bearer header attachment, secure token write/read/delete, expiry and revocation, disabled user response, unauthorized route redirects, and logout. The organization discovery contract now exposes the user's active memberships; add selection tests when implementing the selector. Verify every future tenant-scoped request carries an explicit organization identifier and that unauthorized or foreign tenant responses never display cached data.
+Unit and widget tests exercise login success and generic failure, 401/422/429 and server/transport errors, exact contract shapes and bearer attachment, secure token/expiry/selection storage, expired and revoked tokens, restoration, disabled-account rejection, protected deep links, organization selection/refresh/switching, empty or revoked membership, and logout with unconfirmed revocation. Delayed response tests check concurrent login, logout during pending work, and organization changes while storage or discovery is pending. Widget tests check English/French text and light/dark modes. `flutter analyze` and the full `flutter test` suite must pass before review.
+
+The app has no tenant data request in Stage 3. Each future tenant-scoped request must include an explicit organization identifier and retain a context snapshot; reject results after switching, logout, 403, or 404, and clear displayed tenant data. Laravel remains the authorization authority. Authenticated login, restoration, selection, access loss, and logout must still be run on the Windows Android emulator against development data; the prior emulator check covered public status only.
 
 ## Later feature gates
 
