@@ -1,5 +1,11 @@
 # Progress log
 
+## M2.2C.3 Windows Android runtime validation — 2026-11-19
+
+- The supplied Windows 11 report validates commit `9d94787` on `feature/m2-2c-flutter-floors-zones` with emulator `emulator-5554`: Flutter dependencies installed, analysis found no issues, all 105 automated tests passed, a debug APK compiled in 141.6 seconds, and the APK installed and launched. This runtime evidence was supplied externally; the emulator was not rerun from WSL for this documentation update.
+- All 15 reported manual checks passed: launch, owner login, organization selection, building list/detail, all three floors, negative basement level, basement zones, zone detail, hierarchy Back navigation, Floors pull-to-refresh, offline Floors list error and network recovery, French localization, dark theme, and logout with protected Android Back and a logged-out state after reopening. French and dark mode were checked on login, overview, floor list/detail, and zone list/detail.
+- Still open: iOS runtime validation; switching between two distinct organizations; independent Buildings pull-to-refresh; Buildings API validation gaps; Flutter secure-storage combined-failure commercial-release blocker; and release-mode performance assessment after startup skipped-frame warnings. This report does not establish those gates. No source code, dependency, backend API, migration, database record, or equipment was changed in this documentation update.
+
 ## M2.2C.3 final Flutter source audit — 2026-11-19
 
 - Reproduced three defects with focused tests: a pending response accessed a disposed Riverpod provider; canceling a page-two request left `loadingMore` true; and returning from a newer building's floor list to an older list left the older route on a loading spinner. Fixed these with provider mount checks, cancellation state recovery, and visible-route reloading. The same route handling covers Floor and Zone Details; a stacked Zone Details test confirms the older requested ID reloads on return.
