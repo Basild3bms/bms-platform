@@ -1,6 +1,6 @@
 # Mobile test plan
 
-The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. On 2026-11-18, the updated debug APK on `emulator-5554` displayed the overview and reached the public API status route. Authentication, organization access, and building data still require separate runtime tests.
+The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. On 2026-11-18, the updated debug APK on `emulator-5554` displayed the overview and reached the public API status route. Subsequent Android authentication and M2.2B Buildings results are recorded in `PROGRESS.md`.
 
 ## Foundation gate
 
@@ -15,7 +15,7 @@ The Stage 2 configuration gate adds API origin tests and an overview status-butt
 
 Unit and widget tests exercise login success and generic failure, 401/422/429 and server/transport errors, exact contract shapes and bearer attachment, secure token/expiry/selection storage, expired and revoked tokens, restoration, disabled-account rejection, protected deep links, organization selection/refresh/switching, empty or revoked membership, and logout with unconfirmed revocation. Delayed response tests check concurrent login, logout during pending work, and organization changes while storage or discovery is pending. Widget tests check English/French text and light/dark modes. `flutter analyze` and the full `flutter test` suite must pass before review.
 
-Stage 3 has no tenant data request. Each tenant-scoped request must include an explicit organization identifier and retain a context snapshot; reject results after switching or logout and clear displayed tenant data. Laravel remains the authorization authority. M2.2B tests cover Buildings bearer and organization paths, response validation, list/detail, empty and paginated states, safe errors and retry, switching during requests, logout, and protected navigation. Run Android building runtime checks against development data separately.
+Stage 3 has no tenant data request. Each tenant-scoped request must include an explicit organization identifier and retain a context snapshot; reject results after switching or logout and clear displayed tenant data. Laravel remains the authorization authority. M2.2B automated tests cover Buildings bearer and organization paths, response validation, list/detail, empty and paginated states, safe errors and retry, switching during requests, logout, and protected navigation. Windows Android runtime validation for commit `66fcbbe` confirmed authenticated local PostgreSQL listing and detail, offline detail error and retry recovery, organization reselection, and logout/back/reopen protection. Pull-to-refresh and switching between two distinct organizations remain manual checks; independent server-side logout-token revocation verification also remains pending.
 
 ## Later feature gates
 
