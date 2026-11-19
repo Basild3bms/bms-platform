@@ -1,5 +1,10 @@
 # Progress log
 
+## Local development account check — 2026-11-19
+
+- Read-only inspection of the running local Docker API's PostgreSQL `bms` database found zero users, zero organizations, and no `organization_memberships` table. Four M2.1 identity and hardening migrations are pending. There is no active development account with an organization membership for authenticated Android testing.
+- The local-only `bms:bootstrap-organization` command creates an organization and active owner membership and prompts privately for a password of 12–128 characters. Applying the pending migrations and creating credentials require a separate user action; neither was performed in this check. Normal development data was not reset or modified.
+
 ## M2.1F Stage 3 mobile authentication implementation — 2026-11-19
 
 - Implemented the existing Laravel/OpenAPI authentication contract in Flutter on local `feature/m2-1f-mobile-authentication`, starting from `6e564423a64ec31850cf603320853a8466ceaa2c`. Tests were added before the corresponding infrastructure and UI. No backend endpoint, dependency upgrade, or tenant data feature was added.
@@ -93,3 +98,17 @@ On 2026-11-16, `composer test` in `apps/api` passed 4 tests and 6 assertions, in
 ## Known limitations
 
 No authentication, tenant data APIs, protocol adapters, MQTT/WebSocket transport, historical telemetry or control features are implemented in M1. These belong to later milestones. The local development stack has been booted, including the inert edge process, and its API, web, PostgreSQL and Redis paths verified. Host PHP still lacks `pdo_pgsql`, but PostgreSQL migrations were verified inside the API container. The generated Laravel `.env` and SQLite file are local ignored artifacts from `composer create-project`. Flutter SDK installation and platform runner generation are needed before mobile analysis and widget tests; iOS builds additionally require macOS/Xcode. CI jobs are configured, but no remote CI run was verified in this check. Equipment writes remain disabled by default and in Compose.
+## M2.1F Android authentication validation — 2026-11-19
+
+- Applied the pending M2.1 PostgreSQL migrations locally.
+- Created a local development organization with an active owner membership.
+- Corrected Laravel database configuration for Docker PostgreSQL.
+- Confirmed successful communication between Android and Laravel.
+- Successfully logged in using the Flutter Android application.
+- Successfully selected the BMS Local Development organization.
+- Verified session persistence after closing and reopening Android BMS.
+- Verified logout returns to the Sign in screen.
+- Verified the application remains logged out after reopening.
+- Server-side token revocation still requires independent verification.
+- Secure-storage failure handling remains a commercial-release blocker.
+- No production database or physical BMS equipment was modified.
