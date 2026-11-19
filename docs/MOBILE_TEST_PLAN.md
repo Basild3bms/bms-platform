@@ -1,5 +1,9 @@
 # Mobile test plan
 
+M2.2C.3 automated tests cover Floor and Zone models and API contracts, negative levels, parent IDs, bearer GET paths, pagination, refresh, safe errors, retry, route and organization changes, canceled and stale requests, logout clearing, deep-link guards, and English/French widget navigation. Windows Android and macOS iOS runtime checks remain pending. Validate the local three-floor/six-zone dataset, offline recovery, pull-to-refresh, two-organization switching when available, and logout/back/reopen before marking runtime complete.
+
+The final source audit adds regressions for provider disposal with pending list/detail futures, cancellation during page two, overlapping IDs between pages, UUID path rejection before network access, inconsistent pagination, returning to older stacked floor and zone routes, and dark-theme Zone Details. The full Flutter suite passes 105 tests with no analyzer issues. Runtime checks remain pending.
+
 The Stage 2 configuration gate adds API origin tests and an overview status-button widget test. Android development defaults to `http://10.0.2.2:8000`; other development platforms keep loopback. Release builds require an explicit HTTPS origin, and release Android disallows cleartext traffic. On 2026-11-18, the updated debug APK on `emulator-5554` displayed the overview and reached the public API status route. Subsequent Android authentication and M2.2B Buildings results are recorded in `PROGRESS.md`.
 
 ## Foundation gate

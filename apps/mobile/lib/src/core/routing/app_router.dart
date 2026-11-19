@@ -7,6 +7,10 @@ import '../../features/auth/organization_screen.dart';
 import '../../features/auth/session_controller.dart';
 import '../../features/auth/startup_screen.dart';
 import '../../features/buildings/building_detail_screen.dart';
+import '../../features/floors/floor_detail_screen.dart';
+import '../../features/floors/floors_screen.dart';
+import '../../features/zones/zone_detail_screen.dart';
+import '../../features/zones/zones_screen.dart';
 import '../../features/shell/section_screen.dart';
 
 const sections = [
@@ -52,9 +56,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/overview';
       }
       final section = path.startsWith('/') ? path.substring(1) : path;
-      if (path.startsWith('/buildings/') &&
-          path.split('/').length == 3 &&
-          path.split('/').last.isNotEmpty) {
+      final parts = path.split('/');
+      if (parts.length >= 3 &&
+          parts[1] == 'buildings' &&
+          parts.skip(2).every((part) => part.isNotEmpty) &&
+          (parts.length == 3 ||
+              (parts.length == 4 && parts[3] == 'floors') ||
+              (parts.length == 5 && parts[3] == 'floors') ||
+              (parts.length == 6 &&
+                  parts[3] == 'floors' &&
+                  parts[5] == 'zones') ||
+              (parts.length == 7 &&
+                  parts[3] == 'floors' &&
+                  parts[5] == 'zones'))) {
         return null;
       }
       return sections.contains(section) ? null : '/overview';
@@ -70,6 +84,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           path: '/buildings/:building',
           builder: (_, state) => BuildingDetailScreen(
               buildingId: state.pathParameters['building']!)),
+      GoRoute(
+          path: '/buildings/:building/floors',
+          builder: (_, state) =>
+              FloorsScreen(buildingId: state.pathParameters['building']!)),
+      GoRoute(
+          path: '/buildings/:building/floors/:floor',
+          builder: (_, state) => FloorDetailScreen(
+              buildingId: state.pathParameters['building']!,
+              floorId: state.pathParameters['floor']!)),
+      GoRoute(
+          path: '/buildings/:building/floors/:floor/zones',
+          builder: (_, state) => ZonesScreen(
+              buildingId: state.pathParameters['building']!,
+              floorId: state.pathParameters['floor']!)),
+      GoRoute(
+          path: '/buildings/:building/floors/:floor/zones/:zone',
+          builder: (_, state) => ZoneDetailScreen(
+              buildingId: state.pathParameters['building']!,
+              floorId: state.pathParameters['floor']!,
+              zoneId: state.pathParameters['zone']!)),
       GoRoute(
           path: '/:section',
           builder: (_, state) =>

@@ -1,5 +1,18 @@
 # Progress log
 
+## M2.2C.3 final Flutter source audit — 2026-11-19
+
+- Reproduced three defects with focused tests: a pending response accessed a disposed Riverpod provider; canceling a page-two request left `loadingMore` true; and returning from a newer building's floor list to an older list left the older route on a loading spinner. Fixed these with provider mount checks, cancellation state recovery, and visible-route reloading. The same route handling covers Floor and Zone Details; a stacked Zone Details test confirms the older requested ID reloads on return.
+- Floor and Zone API boundaries now require canonical UUID-shaped organization and hierarchy identifiers before a request, validate response IDs, and reject inconsistent pagination or duplicate IDs. Controllers reject overlaps between pages while preserving the existing list and allowing a retry. Added English/French navigation, direct-link, dark-theme, scope-switch, disposal, cancellation, and duplicate-page regression assertions.
+- Final checks: `flutter analyze --no-pub` found no issues; all 105 Flutter tests passed; `git diff --check` passed. Backend, migrations, database records, dependencies, production systems, and physical equipment were not changed. The existing secure-storage combined-failure commercial-release blocker remains open. Android and iOS runtime validation remains pending.
+
+## M2.2C.3 Flutter Floors and Zones — 2026-11-19
+
+- Added read-only typed Floor and Zone GET clients and repositories using protected Dio; list/detail controllers and screens; Building Details and Floor Details browse actions; and guarded hierarchy routes. Lists support numbered pages, pull-to-refresh, empty/error/retry states, and English/French labels. Signed floor levels and translated zone types display correctly.
+- The client validates organization, building, floor, and detail IDs and rejects malformed responses. Session changes and logout clear hierarchy state and cancel requests; leaving a screen cancels its pending request, and request counters discard late replies. HTTP 401 closes the session; 403/404 show safe unavailable states. No create/update/delete or equipment write path was added.
+- Automated contract, controller, and widget tests cover parsing, protected GET paths, paging, refresh, errors, organization switching, route changes, cancellation, logout, guarded deep links, and English/French navigation. Android and iOS runtime checks remain pending. The secure-storage combined-failure commercial-release blocker remains open. No backend source, migration, database record, production system, or physical equipment was changed.
+- Final checks: `flutter analyze --no-pub` found no issues and all 97 Flutter tests passed; `composer test` reported 85 passed, 1 skipped, 525 assertions; both edge tests passed; Docker web `npm run build` passed. The web build used the existing local container. No Android or iOS runner was available in WSL for this implementation pass.
+
 ## M2.2C local HTTP validation and final backend hardening — 2026-11-19
 
 - The supplied local HTTP report records owner authentication 200; three floor and six zone creates 201; updates, lists, details, and pagination 200; duplicate floor/zone codes and invalid zone type 422; cross-floor zone access 404; unauthenticated requests 401; logout 200; and replay of the revoked bearer token 401. The credential and token were not disclosed in this review. The token replay is independent server-side revocation evidence, while the Flutter secure-storage combined-failure commercial-release blocker remains unresolved.
