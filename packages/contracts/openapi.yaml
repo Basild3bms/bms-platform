@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BMS API
-  version: 0.2.1
+  version: 0.2.2
 servers:
   - url: /
 components:
@@ -76,6 +76,63 @@ components:
         code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
         address: { type: [string, 'null'], maxLength: 255 }
         timezone: { type: string, example: Europe/Paris }
+    Floor:
+      type: object
+      required: [id, organization_id, building_id, name, code, level, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        organization_id: { type: string, format: uuid }
+        building_id: { type: string, format: uuid }
+        name: { type: string, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        level: { type: integer, minimum: -2147483648, maximum: 2147483647, description: Signed level; negative values represent basements. }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    FloorInput:
+      type: object
+      description: Organization and building IDs come from the URL and are rejected in the body, including null or empty values.
+      required: [name, code, level]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        level: { type: integer, minimum: -2147483648, maximum: 2147483647 }
+    FloorPatch:
+      type: object
+      description: Parent IDs cannot be changed or supplied, including null or empty values.
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        level: { type: integer, minimum: -2147483648, maximum: 2147483647 }
+    Zone:
+      type: object
+      required: [id, organization_id, building_id, floor_id, name, code, zone_type, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        organization_id: { type: string, format: uuid }
+        building_id: { type: string, format: uuid }
+        floor_id: { type: string, format: uuid }
+        name: { type: string, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        zone_type: { type: string, enum: [office, plant_room, common, retail, storage, other] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ZoneInput:
+      type: object
+      description: Organization, building, and floor IDs come from the URL and are rejected in the body, including null or empty values.
+      required: [name, code, zone_type]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        zone_type: { type: string, enum: [office, plant_room, common, retail, storage, other] }
+    ZonePatch:
+      type: object
+      description: Parent IDs cannot be changed or supplied, including null or empty values.
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
+        zone_type: { type: string, enum: [office, plant_room, common, retail, storage, other] }
 paths:
   /api/v1/status:
     get:
@@ -197,7 +254,7 @@ paths:
                       per_page: { type: integer }
                       total: { type: integer }
                       last_page: { type: integer }
-        '401': { description: Missing or invalid bearer token, or inactive account }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
         '403': { description: Active member without buildings.view }
         '404': { description: Organization is inaccessible or absent }
         '422': { description: Invalid pagination parameters }
@@ -220,10 +277,10 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/Building' }
-        '401': { description: Missing or invalid bearer token, or inactive account }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
         '403': { description: Active member without buildings.manage }
         '404': { description: Organization is inaccessible or absent }
-        '422': { description: Invalid fields, duplicate code, or client-supplied organization_id }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied organization_id' }
   /api/v1/organizations/{organization}/buildings/{building}:
     parameters:
       - name: organization
@@ -248,7 +305,7 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/Building' }
-        '401': { description: Missing or invalid bearer token, or inactive account }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
         '403': { description: Active member without buildings.view }
         '404': { description: Organization or building is inaccessible or absent }
     patch:
@@ -270,10 +327,214 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/Building' }
-        '401': { description: Missing or invalid bearer token, or inactive account }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
         '403': { description: Active member without buildings.manage }
         '404': { description: Organization or building is inaccessible or absent }
-        '422': { description: Invalid fields, duplicate code, or client-supplied organization_id }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied organization_id' }
+  /api/v1/organizations/{organization}/buildings/{building}/floors:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: listFloors
+      summary: List floors in an authorized building
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200':
+          description: Floors ordered by code and ID
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Floor' } }
+                  meta:
+                    type: object
+                    required: [current_page, per_page, total, last_page]
+                    properties:
+                      current_page: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      last_page: { type: integer }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without floors.view }
+        '404': { description: Organization or building is inaccessible or absent }
+        '422': { description: Invalid pagination parameters }
+    post:
+      operationId: createFloor
+      summary: Create a floor under the authorized building
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FloorInput' }
+      responses:
+        '201':
+          description: Floor created and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Floor' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without floors.manage }
+        '404': { description: Organization or building is inaccessible or absent }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied parent IDs' }
+  /api/v1/organizations/{organization}/buildings/{building}/floors/{floor}:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: floor, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getFloor
+      summary: Get a floor in the authorized building
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Floor detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Floor' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without floors.view }
+        '404': { description: 'Organization, building, or floor is inaccessible or absent' }
+    patch:
+      operationId: updateFloor
+      summary: Update a floor without changing its parent
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FloorPatch' }
+      responses:
+        '200':
+          description: Floor updated and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Floor' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without floors.manage }
+        '404': { description: 'Organization, building, or floor is inaccessible or absent' }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied parent IDs' }
+  /api/v1/organizations/{organization}/buildings/{building}/floors/{floor}/zones:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: floor, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: listZones
+      summary: List zones in an authorized floor
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        '200':
+          description: Zones ordered by code and ID
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Zone' } }
+                  meta:
+                    type: object
+                    required: [current_page, per_page, total, last_page]
+                    properties:
+                      current_page: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      last_page: { type: integer }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without zones.view }
+        '404': { description: 'Organization, building, or floor is inaccessible or absent' }
+        '422': { description: Invalid pagination parameters }
+    post:
+      operationId: createZone
+      summary: Create a zone under the authorized floor
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ZoneInput' }
+      responses:
+        '201':
+          description: Zone created and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Zone' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without zones.manage }
+        '404': { description: 'Organization, building, or floor is inaccessible or absent' }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied parent IDs' }
+  /api/v1/organizations/{organization}/buildings/{building}/floors/{floor}/zones/{zone}:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: floor, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: zone, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getZone
+      summary: Get a zone in the authorized floor
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Zone detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Zone' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without zones.view }
+        '404': { description: 'Organization, building, floor, or zone is inaccessible or absent' }
+    patch:
+      operationId: updateZone
+      summary: Update a zone without changing its parent
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ZonePatch' }
+      responses:
+        '200':
+          description: Zone updated and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Zone' }
+        '401': { description: 'Missing or invalid bearer token, or inactive account' }
+        '403': { description: Active member without zones.manage }
+        '404': { description: 'Organization, building, floor, or zone is inaccessible or absent' }
+        '422': { description: 'Invalid fields, duplicate code, or client-supplied parent IDs' }
   /api/v1/organizations/{organization}/users:
     parameters:
       - name: organization
