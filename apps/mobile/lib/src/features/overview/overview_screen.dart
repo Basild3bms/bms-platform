@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/localization/app_strings.dart';
 import '../../core/network/api_providers.dart';
@@ -39,8 +40,16 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.strings.foundation),
+            Text(widget.strings.section('buildings'),
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
+            Text(widget.strings.buildingsOverview),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => context.go('/buildings'),
+              child: Text(widget.strings.browseBuildings),
+            ),
+            const SizedBox(height: 20),
             Text(widget.strings.noLiveData),
             const SizedBox(height: 20),
             FilledButton(

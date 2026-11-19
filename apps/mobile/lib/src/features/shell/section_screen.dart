@@ -8,6 +8,7 @@ import '../../core/widgets/unavailable_card.dart';
 import '../overview/overview_screen.dart';
 import '../settings/settings_screen.dart';
 import '../auth/session_controller.dart';
+import '../buildings/buildings_screen.dart';
 
 class SectionScreen extends ConsumerWidget {
   const SectionScreen({required this.section, super.key});
@@ -50,6 +51,7 @@ class SectionScreen extends ConsumerWidget {
       body: SafeArea(
         child: switch (section) {
           'overview' => OverviewScreen(strings: strings),
+          'buildings' => const BuildingsScreen(),
           'settings' => SettingsScreen(strings: strings),
           _ => Center(child: UnavailableCard(strings: strings)),
         },

@@ -96,7 +96,7 @@ void main() {
     expect(find.text('Sign in'), findsWidgets);
     expect(find.byKey(const Key('login-email')), findsOneWidget);
     expect(find.byKey(const Key('login-password')), findsOneWidget);
-    expect(find.text('BMS mobile — M1 foundation'), findsNothing);
+    expect(find.text('Browse buildings'), findsNothing);
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await tester.pumpAndSettle();
     expect(find.text('Enter a valid email address.'), findsOneWidget);
@@ -138,7 +138,7 @@ void main() {
       await _pump(tester, repo, WidgetStore());
       await _login(tester);
       expect(find.text(entry.value), findsOneWidget);
-      expect(find.text('BMS mobile — M1 foundation'), findsNothing);
+      expect(find.text('Browse buildings'), findsNothing);
     });
   }
 
@@ -171,7 +171,7 @@ void main() {
     gate.complete(const AuthUser(
         id: 7, name: 'Operator', email: 'operator@example.test'));
     await tester.pumpAndSettle();
-    expect(find.text('BMS mobile — M1 foundation'), findsOneWidget);
+    expect(find.text('Browse buildings'), findsOneWidget);
   });
 
   testWidgets('login selects an organization and shows protected shell',
@@ -183,7 +183,7 @@ void main() {
     expect(find.text('South'), findsOneWidget);
     await tester.tap(find.text('North'));
     await tester.pumpAndSettle();
-    expect(find.text('BMS mobile — M1 foundation'), findsOneWidget);
+    expect(find.text('Browse buildings'), findsOneWidget);
     expect(find.text('North'), findsWidgets);
     await tester.tap(find.byTooltip('Switch organization'));
     await tester.pumpAndSettle();
@@ -199,7 +199,7 @@ void main() {
     await _pump(tester, repo, WidgetStore());
     await _login(tester);
     expect(find.text('No organizations available.'), findsOneWidget);
-    expect(find.text('BMS mobile — M1 foundation'), findsNothing);
+    expect(find.text('Browse buildings'), findsNothing);
   });
 
   testWidgets('logout clears protected routes and reports failed revocation',
@@ -226,6 +226,6 @@ void main() {
     expect(store.value, isNull);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(find.text('BMS mobile — M1 foundation'), findsNothing);
+    expect(find.text('Browse buildings'), findsNothing);
   });
 }

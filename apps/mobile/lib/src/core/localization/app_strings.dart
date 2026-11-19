@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../features/auth/auth_models.dart';
+import '../../features/buildings/building_models.dart';
 
 class AppStrings {
   const AppStrings(this.languageCode);
@@ -94,6 +95,35 @@ class AppStrings {
   String get toggleTheme => isFrench ? 'Changer le thème' : 'Toggle theme';
   String get organizationContext =>
       isFrench ? 'Organisation active' : 'Active organization';
+  String get browseBuildings =>
+      isFrench ? 'Voir les bâtiments' : 'Browse buildings';
+  String get buildingsOverview => isFrench
+      ? 'Consultez les bâtiments de votre organisation active.'
+      : 'View buildings in your active organization.';
+  String get loadingBuildings =>
+      isFrench ? 'Chargement des bâtiments…' : 'Loading buildings…';
+  String get noBuildings => isFrench
+      ? 'Aucun bâtiment dans cette organisation.'
+      : 'No buildings in this organization.';
+  String get loadMore => isFrench ? 'Charger plus' : 'Load more';
+  String get buildingUnavailable =>
+      isFrench ? 'Bâtiment indisponible.' : 'Building unavailable.';
+  String get address => isFrench ? 'Adresse' : 'Address';
+  String get timezone => isFrench ? 'Fuseau horaire' : 'Time zone';
+  String get code => isFrench ? 'Code' : 'Code';
+  String get refreshBuildings =>
+      isFrench ? 'Actualiser les bâtiments' : 'Refresh buildings';
+  String buildingFailureMessage(BuildingFailureKind? kind) => switch (kind) {
+        BuildingFailureKind.network ||
+        BuildingFailureKind.timeout =>
+          networkError,
+        BuildingFailureKind.rateLimited => rateLimited,
+        BuildingFailureKind.unauthorized => sessionExpired,
+        BuildingFailureKind.forbidden ||
+        BuildingFailureKind.notFound =>
+          buildingUnavailable,
+        _ => serviceError,
+      };
   String failureMessage(AuthFailureKind? kind) => switch (kind) {
         AuthFailureKind.invalidCredentials => invalidCredentials,
         AuthFailureKind.invalidInput => invalidInput,

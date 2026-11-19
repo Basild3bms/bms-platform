@@ -6,6 +6,7 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/organization_screen.dart';
 import '../../features/auth/session_controller.dart';
 import '../../features/auth/startup_screen.dart';
+import '../../features/buildings/building_detail_screen.dart';
 import '../../features/shell/section_screen.dart';
 
 const sections = [
@@ -51,6 +52,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/overview';
       }
       final section = path.startsWith('/') ? path.substring(1) : path;
+      if (path.startsWith('/buildings/') &&
+          path.split('/').length == 3 &&
+          path.split('/').last.isNotEmpty) {
+        return null;
+      }
       return sections.contains(section) ? null : '/overview';
     },
     routes: [
@@ -60,6 +66,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/organizations',
           builder: (context, state) => const OrganizationScreen()),
+      GoRoute(
+          path: '/buildings/:building',
+          builder: (_, state) => BuildingDetailScreen(
+              buildingId: state.pathParameters['building']!)),
       GoRoute(
           path: '/:section',
           builder: (_, state) =>
