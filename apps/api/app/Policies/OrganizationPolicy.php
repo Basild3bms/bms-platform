@@ -35,6 +35,26 @@ class OrganizationPolicy
         return $this->permission($user, $organization, 'buildings.manage');
     }
 
+    public function viewFloors(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'floors.view');
+    }
+
+    public function manageFloors(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'floors.manage');
+    }
+
+    public function viewZones(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'zones.view');
+    }
+
+    public function manageZones(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'zones.manage');
+    }
+
     public function assignRole(User $user, Organization $organization, string $role): Response
     {
         $membership = $this->membership($user, $organization);
