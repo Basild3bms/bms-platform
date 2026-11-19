@@ -1,6 +1,6 @@
 # Roadmap
 
-M2.1F Stage 1 added authenticated organization discovery, and Stage 2 validated local public API connectivity. Stage 3 mobile login, session restoration, protected navigation, and organization selection are implemented; authenticated Android runtime validation is pending. M2.2A adds the secured buildings API on its feature branch. Later M2.2 inventory and hierarchy work remains pending.
+M2.1F Stage 1 added authenticated organization discovery, and Stage 2 validated local public API connectivity. Stage 3 mobile login, session restoration, protected navigation, and organization selection are implemented. M2.2A adds the secured buildings API; M2.2B integrates read-only Buildings list and detail in Flutter. Android runtime validation of M2.2B is pending. Later M2.2 inventory and hierarchy work remains pending.
 
 | Milestone | Outcome | Exit gate |
 |---|---|---|

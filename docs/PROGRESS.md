@@ -1,5 +1,12 @@
 # Progress log
 
+## M2.2B Flutter Buildings integration — 2026-11-19
+
+- Implemented read-only, organization-scoped Buildings list and detail using the existing Laravel GET API, protected Dio bearer client, and selected session context. Added typed response validation, numbered pagination, pull-to-refresh, safe loading/empty/error/retry states, English/French labels, and an overview entry. No building IDs are hardcoded in the app.
+- Building state is cleared and in-flight requests are cancelled or disregarded on organization switch and logout. A list 401 closes the session; list 403/404 returns to organization selection; detail 403/404 shows unavailable. No API, database, migration, equipment command, or physical-write change was made.
+- Flutter analysis passed with no issues. The full Flutter suite passed 82 tests after adding API contract, controller, and widget tests; it uses fake HTTP and does not touch the development database. SQLite `composer test` passed 57 tests, 1 skipped, 296 assertions; edge unit tests passed 2. Web build passed in the existing Docker container. The WSL host web build remains blocked by the known missing GNU Rollup optional binary in shared `node_modules`.
+- Android M2.2B building runtime validation remains pending; exact Windows emulator steps are in `FLUTTER_SETUP.md`. Secure-storage failure handling remains a commercial-release blocker. This branch is uncommitted and unpushed pending review.
+
 ## M2.2A secure buildings API — 2026-11-19
 
 - On local `feature/m2-2-building-management`, added a reversible migration for `buildings.view` (viewer, operator, admin, owner) and `buildings.manage` (admin, owner) without changing previously executed migrations. Existing user and role permissions remain intact.

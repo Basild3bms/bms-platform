@@ -12,6 +12,8 @@ The Stage 3 Flutter client uses these existing response shapes: login returns `t
 
 ## M2.2A buildings
 
+The M2.2B Flutter client calls only the two GET routes below using the selected organization ID and existing protected Dio bearer client. It parses list `data` and `meta`, checks each record's `organization_id`, and rejects mismatched detail IDs. A list 401 closes the mobile session; list 403/404 returns to organization selection; detail 403/404 shows an unavailable state. The app has no building write route or equipment control UI.
+
 All four routes require an active Sanctum bearer account and an active membership in `{organization}`:
 
 | Method and path | Permission | Success |

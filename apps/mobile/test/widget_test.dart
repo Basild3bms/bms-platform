@@ -7,23 +7,23 @@ import 'support/authenticated_session.dart';
 import 'package:bms_mobile/src/features/auth/session_controller.dart';
 
 void main() {
-  testWidgets('shows the M1 foundation screen', (tester) async {
+  testWidgets('shows the buildings overview entry', (tester) async {
     await tester.pumpWidget(ProviderScope(overrides: [
       sessionControllerProvider.overrideWith(AuthenticatedTestSession.new),
     ], child: const BmsApp()));
     await tester.pumpAndSettle();
-    expect(find.text('BMS mobile — M1 foundation'), findsOneWidget);
+    expect(find.text('Browse buildings'), findsOneWidget);
     expect(find.text('No live building data is available.'), findsOneWidget);
   });
 
-  testWidgets('navigation marks unavailable features', (tester) async {
+  testWidgets('navigation keeps future features unavailable', (tester) async {
     await tester.pumpWidget(ProviderScope(overrides: [
       sessionControllerProvider.overrideWith(AuthenticatedTestSession.new),
     ], child: const BmsApp()));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Buildings'));
+    await tester.tap(find.text('Equipment'));
     await tester.pumpAndSettle();
     expect(find.text('Feature unavailable'), findsOneWidget);
   });
