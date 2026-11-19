@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/auth/auth_models.dart';
+
 class AppStrings {
   const AppStrings(this.languageCode);
 
@@ -38,6 +40,69 @@ class AppStrings {
   String get settingsHelp => isFrench
       ? 'Les préférences s’appliquent pendant cette session.'
       : 'Preferences apply for this session.';
+  String get signIn => isFrench ? 'Se connecter' : 'Sign in';
+  String get signOut => isFrench ? 'Se déconnecter' : 'Sign out';
+  String get email => isFrench ? 'Adresse e-mail' : 'Email address';
+  String get password => isFrench ? 'Mot de passe' : 'Password';
+  String get showPassword =>
+      isFrench ? 'Afficher le mot de passe' : 'Show password';
+  String get hidePassword =>
+      isFrench ? 'Masquer le mot de passe' : 'Hide password';
+  String get invalidEmail => isFrench
+      ? 'Saisissez une adresse e-mail valide.'
+      : 'Enter a valid email address.';
+  String get missingPassword =>
+      isFrench ? 'Saisissez votre mot de passe.' : 'Enter your password.';
+  String get invalidCredentials => isFrench
+      ? 'Adresse e-mail ou mot de passe incorrect.'
+      : 'Invalid email or password.';
+  String get invalidInput =>
+      isFrench ? 'Vérifiez les champs saisis.' : 'Check the submitted fields.';
+  String get rateLimited => isFrench
+      ? 'Trop de tentatives. Réessayez plus tard.'
+      : 'Too many attempts. Try again later.';
+  String get networkError => isFrench
+      ? 'Réseau indisponible. Réessayez.'
+      : 'Network unavailable. Try again.';
+  String get serviceError => isFrench
+      ? 'Service indisponible. Réessayez.'
+      : 'Service unavailable. Try again.';
+  String get storageError => isFrench
+      ? 'Stockage sécurisé indisponible. Réessayez.'
+      : 'Secure storage unavailable. Try again.';
+  String get sessionExpired => isFrench
+      ? 'Votre session a expiré. Reconnectez-vous.'
+      : 'Session expired. Sign in again.';
+  String get chooseOrganization =>
+      isFrench ? 'Choisir une organisation' : 'Choose organization';
+  String get noOrganizations => isFrench
+      ? 'Aucune organisation disponible.'
+      : 'No organizations available.';
+  String get refreshAccess =>
+      isFrench ? 'Actualiser les accès' : 'Refresh access';
+  String get switchOrganization =>
+      isFrench ? 'Changer d’organisation' : 'Switch organization';
+  String get retry => isFrench ? 'Réessayer' : 'Retry';
+  String get restoringSession =>
+      isFrench ? 'Vérification de la session…' : 'Checking session…';
+  String get revocationUnconfirmed => isFrench
+      ? 'La déconnexion du serveur n’a pas pu être confirmée.'
+      : 'Server sign-out could not be confirmed.';
+  String get localRemovalFailed => isFrench
+      ? 'La suppression locale du jeton n’a pas pu être confirmée. Ne partagez pas cet appareil.'
+      : 'Local token removal could not be confirmed. Do not share this device.';
+  String get toggleTheme => isFrench ? 'Changer le thème' : 'Toggle theme';
+  String get organizationContext =>
+      isFrench ? 'Organisation active' : 'Active organization';
+  String failureMessage(AuthFailureKind? kind) => switch (kind) {
+        AuthFailureKind.invalidCredentials => invalidCredentials,
+        AuthFailureKind.invalidInput => invalidInput,
+        AuthFailureKind.rateLimited => rateLimited,
+        AuthFailureKind.network || AuthFailureKind.timeout => networkError,
+        AuthFailureKind.storage => storageError,
+        AuthFailureKind.unauthorized => sessionExpired,
+        _ => serviceError,
+      };
   String section(String key) => switch (key) {
         'overview' => isFrench ? 'Vue d’ensemble' : 'Overview',
         'buildings' => isFrench ? 'Bâtiments' : 'Buildings',
@@ -45,7 +110,8 @@ class AppStrings {
         'monitoring' => isFrench ? 'Surveillance en direct' : 'Live monitoring',
         'alarms' => isFrench ? 'Alarmes' : 'Alarms',
         'automation' => isFrench ? 'Automatisation' : 'Automation',
-        'energy' => isFrench ? 'Énergie' : 'Energy',
+        'energy' => isFrench ? 'Gestion de l’énergie' : 'Energy management',
+        'reports' => isFrench ? 'Rapports' : 'Reports',
         'maintenance' => isFrench ? 'Maintenance' : 'Maintenance',
         'profile' => isFrench ? 'Profil' : 'User profile',
         'settings' => isFrench ? 'Paramètres' : 'Settings',

@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_preferences.dart';
+import '../auth/session_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({required this.strings, super.key});
@@ -38,6 +39,12 @@ class SettingsScreen extends ConsumerWidget {
             selected: {ref.watch(themeModeProvider)},
             onSelectionChanged: (value) =>
                 ref.read(themeModeProvider.notifier).setMode(value.first),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: () =>
+                ref.read(sessionControllerProvider.notifier).logout(),
+            child: Text(strings.signOut),
           ),
         ],
       );
