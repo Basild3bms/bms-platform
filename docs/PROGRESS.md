@@ -1,5 +1,10 @@
 # Progress log
 
+## Android CI NDK installation reliability — 2026-11-20
+
+- The mobile CI job now checks for Flutter's exact NDK `28.2.13676358` before the debug APK build and installs it with up to three bounded attempts when absent or incomplete. Each retry removes only that invalid NDK directory. A valid installation requires the expected `Pkg.Revision` in `source.properties` and an executable `ndk-build`.
+- GitHub's current Ubuntu runner images no longer list NDK 28 as preinstalled. The reported corrupt ZIP during `sdkmanager` download is consistent with a transient installation failure; the previous Gradle Plugin Portal resolution error is a separate issue without enough evidence for a repository change. YAML parsing, shell syntax, mock preinstalled/retry/failure scenarios, and `git diff --check` passed. A GitHub-hosted run is still required to verify the real NDK download and APK build. Existing CI jobs, tests, versions, and security checks remain in place.
+
 ## M2.2C.3 Windows Android runtime validation — 2026-11-19
 
 - The supplied Windows 11 report validates commit `9d94787` on `feature/m2-2c-flutter-floors-zones` with emulator `emulator-5554`: Flutter dependencies installed, analysis found no issues, all 105 automated tests passed, a debug APK compiled in 141.6 seconds, and the APK installed and launched. This runtime evidence was supplied externally; the emulator was not rerun from WSL for this documentation update.

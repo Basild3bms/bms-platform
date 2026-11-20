@@ -90,4 +90,51 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      - name: Ensure Flutter Android NDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          ndk_version=28.2.13676358
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          if [[ -z "$sdk_root" ]]; then
+            echo "Android SDK location is not configured" >&2
+            exit 1
+          fi
+          ndk_dir="$sdk_root/ndk/$ndk_version"
+
+          ndk_valid() {
+            [[ -f "$ndk_dir/source.properties" && -x "$ndk_dir/ndk-build" ]] &&
+              grep -Eq '^[[:space:]]*Pkg\.Revision[[:space:]]*=[[:space:]]*28\.2\.13676358[[:space:]]*$' "$ndk_dir/source.properties"
+          }
+
+          if ndk_valid; then
+            echo "NDK $ndk_version is already installed and valid"
+            exit 0
+          fi
+
+          sdkmanager_bin="$(command -v sdkmanager || true)"
+          if [[ -z "$sdkmanager_bin" ]]; then
+            sdkmanager_bin="$sdk_root/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          if [[ ! -x "$sdkmanager_bin" ]]; then
+            echo "Android sdkmanager is unavailable" >&2
+            exit 1
+          fi
+
+          for attempt in 1 2 3; do
+            if [[ -e "$ndk_dir" || -L "$ndk_dir" ]]; then
+              echo "Removing incomplete NDK $ndk_version installation"
+              rm -rf -- "$ndk_dir"
+            fi
+            echo "Installing NDK $ndk_version (attempt $attempt of 3)"
+            if timeout 600 "$sdkmanager_bin" --sdk_root="$sdk_root" --install "ndk;$ndk_version" && ndk_valid; then
+              echo "NDK $ndk_version installation verified"
+              exit 0
+            fi
+            if [[ "$attempt" -eq 3 ]]; then
+              echo "NDK $ndk_version installation failed after 3 attempts" >&2
+              exit 1
+            fi
+            sleep "$((attempt * 10))"
+          done
       - run: flutter build apk --debug
