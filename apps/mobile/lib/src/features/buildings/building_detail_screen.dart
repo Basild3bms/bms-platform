@@ -74,6 +74,11 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(
                     '/buildings/${Uri.encodeComponent(widget.buildingId)}/floors')),
+            ListTile(
+                title: Text(strings.browseEquipment),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                    '/buildings/${Uri.encodeComponent(widget.buildingId)}/equipment')),
           ]),
         _ => Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [

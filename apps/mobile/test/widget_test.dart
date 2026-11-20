@@ -23,7 +23,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Equipment'));
+    await tester.tap(find.text('Live monitoring'));
     await tester.pumpAndSettle();
     expect(find.text('Feature unavailable'), findsOneWidget);
   });

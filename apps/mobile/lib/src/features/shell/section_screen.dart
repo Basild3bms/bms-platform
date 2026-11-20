@@ -9,6 +9,7 @@ import '../overview/overview_screen.dart';
 import '../settings/settings_screen.dart';
 import '../auth/session_controller.dart';
 import '../buildings/buildings_screen.dart';
+import '../equipment/equipment_building_screen.dart';
 
 class SectionScreen extends ConsumerWidget {
   const SectionScreen({required this.section, super.key});
@@ -52,6 +53,7 @@ class SectionScreen extends ConsumerWidget {
         child: switch (section) {
           'overview' => OverviewScreen(strings: strings),
           'buildings' => const BuildingsScreen(),
+          'equipment' => const EquipmentBuildingScreen(),
           'settings' => SettingsScreen(strings: strings),
           _ => Center(child: UnavailableCard(strings: strings)),
         },

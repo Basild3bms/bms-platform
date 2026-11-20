@@ -7,6 +7,8 @@ import '../../features/auth/organization_screen.dart';
 import '../../features/auth/session_controller.dart';
 import '../../features/auth/startup_screen.dart';
 import '../../features/buildings/building_detail_screen.dart';
+import '../../features/equipment/equipment_detail_screen.dart';
+import '../../features/equipment/equipment_list_screen.dart';
 import '../../features/floors/floor_detail_screen.dart';
 import '../../features/floors/floors_screen.dart';
 import '../../features/zones/zone_detail_screen.dart';
@@ -68,7 +70,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   parts[5] == 'zones') ||
               (parts.length == 7 &&
                   parts[3] == 'floors' &&
-                  parts[5] == 'zones'))) {
+                  parts[5] == 'zones') ||
+              (parts.length == 4 && parts[3] == 'equipment') ||
+              (parts.length == 5 && parts[3] == 'equipment') ||
+              (parts.length == 6 &&
+                  parts[3] == 'floors' &&
+                  parts[5] == 'equipment') ||
+              (parts.length == 8 &&
+                  parts[3] == 'floors' &&
+                  parts[5] == 'zones' &&
+                  parts[7] == 'equipment'))) {
         return null;
       }
       return sections.contains(section) ? null : '/overview';
@@ -85,12 +96,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           builder: (_, state) => BuildingDetailScreen(
               buildingId: state.pathParameters['building']!)),
       GoRoute(
+          path: '/buildings/:building/equipment',
+          builder: (_, state) => EquipmentListScreen(
+              buildingId: state.pathParameters['building']!)),
+      GoRoute(
+          path: '/buildings/:building/equipment/:equipment',
+          builder: (_, state) => EquipmentDetailScreen(
+              buildingId: state.pathParameters['building']!,
+              equipmentId: state.pathParameters['equipment']!)),
+      GoRoute(
           path: '/buildings/:building/floors',
           builder: (_, state) =>
               FloorsScreen(buildingId: state.pathParameters['building']!)),
       GoRoute(
           path: '/buildings/:building/floors/:floor',
           builder: (_, state) => FloorDetailScreen(
+              buildingId: state.pathParameters['building']!,
+              floorId: state.pathParameters['floor']!)),
+      GoRoute(
+          path: '/buildings/:building/floors/:floor/equipment',
+          builder: (_, state) => EquipmentListScreen(
               buildingId: state.pathParameters['building']!,
               floorId: state.pathParameters['floor']!)),
       GoRoute(
@@ -101,6 +126,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/buildings/:building/floors/:floor/zones/:zone',
           builder: (_, state) => ZoneDetailScreen(
+              buildingId: state.pathParameters['building']!,
+              floorId: state.pathParameters['floor']!,
+              zoneId: state.pathParameters['zone']!)),
+      GoRoute(
+          path: '/buildings/:building/floors/:floor/zones/:zone/equipment',
+          builder: (_, state) => EquipmentListScreen(
               buildingId: state.pathParameters['building']!,
               floorId: state.pathParameters['floor']!,
               zoneId: state.pathParameters['zone']!)),

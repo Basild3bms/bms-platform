@@ -85,6 +85,11 @@ class _FloorDetailScreenState extends ConsumerState<FloorDetailScreen> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(
                       '/buildings/${Uri.encodeComponent(widget.buildingId)}/floors/${Uri.encodeComponent(widget.floorId)}/zones')),
+              ListTile(
+                  title: Text(strings.browseEquipment),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(
+                      '/buildings/${Uri.encodeComponent(widget.buildingId)}/floors/${Uri.encodeComponent(widget.floorId)}/equipment')),
             ]),
           HierarchyDetailPhase.unavailable =>
             HierarchyStatus(strings.floorUnavailable),

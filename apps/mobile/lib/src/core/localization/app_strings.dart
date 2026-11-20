@@ -136,6 +136,95 @@ class AppStrings {
   String get zoneUnavailable =>
       isFrench ? 'Zone indisponible.' : 'Zone unavailable.';
   String get zoneType => isFrench ? 'Type de zone' : 'Zone type';
+  String get browseEquipment =>
+      isFrench ? 'Voir les équipements' : 'Browse equipment';
+  String get chooseEquipmentBuilding => isFrench
+      ? 'Choisissez un bâtiment pour voir ses équipements.'
+      : 'Choose a building to view its equipment.';
+  String get equipmentBuildingScope => isFrench
+      ? 'Tous les équipements de ce bâtiment'
+      : 'All equipment in this building';
+  String get equipmentFloorScope => isFrench
+      ? 'Équipements de cet étage et de ses zones'
+      : 'Equipment on this floor and in its zones';
+  String get equipmentZoneScope =>
+      isFrench ? 'Équipements de cette zone' : 'Equipment in this zone';
+  String get loadingEquipment =>
+      isFrench ? 'Chargement des équipements…' : 'Loading equipment…';
+  String get noEquipment => isFrench
+      ? 'Aucun équipement à cet emplacement.'
+      : 'No equipment at this location.';
+  String get equipmentUnavailable => isFrench
+      ? 'Équipement indisponible ou accès refusé.'
+      : 'Equipment unavailable or access denied.';
+  String get equipmentType => isFrench ? 'Type d’équipement' : 'Equipment type';
+  String get lifecycleStatus =>
+      isFrench ? 'État du cycle de vie' : 'Lifecycle status';
+  String get buildingLevel =>
+      isFrench ? 'Au niveau du bâtiment' : 'Building level';
+  String get description => isFrench ? 'Description' : 'Description';
+  String get manufacturer => isFrench ? 'Fabricant' : 'Manufacturer';
+  String get model => isFrench ? 'Modèle' : 'Model';
+  String get serialNumber => isFrench ? 'Numéro de série' : 'Serial number';
+  String get installedOn => isFrench ? 'Date d’installation' : 'Installed on';
+  String get commissionedOn =>
+      isFrench ? 'Date de mise en service' : 'Commissioned on';
+  String get specifications =>
+      isFrench ? 'Caractéristiques techniques' : 'Engineering specifications';
+  String get specificationsUnsupported => isFrench
+      ? 'Version des caractéristiques non prise en charge.'
+      : 'Specification version is not supported.';
+  String get notAvailable => isFrench ? 'Non renseigné' : 'Not available';
+  String equipmentDate(String? iso) {
+    if (iso == null) return notAvailable;
+    return isFrench
+        ? '${iso.substring(8, 10)}/${iso.substring(5, 7)}/${iso.substring(0, 4)}'
+        : iso;
+  }
+
+  String equipmentTypeLabel(String code) => switch (code) {
+        'ahu' =>
+          isFrench ? 'Centrale de traitement d’air' : 'Air handling unit',
+        'fcu' => isFrench ? 'Ventilo-convecteur' : 'Fan coil unit',
+        'vav' => isFrench ? 'Boîte VAV' : 'VAV box',
+        'fan' => isFrench ? 'Ventilateur' : 'Fan',
+        'chiller' => isFrench ? 'Groupe froid' : 'Chiller',
+        'boiler' => isFrench ? 'Chaudière' : 'Boiler',
+        'heat_pump' => isFrench ? 'Pompe à chaleur' : 'Heat pump',
+        'circulation_pump' =>
+          isFrench ? 'Pompe de circulation' : 'Circulation pump',
+        'motorized_valve' => isFrench ? 'Vanne motorisée' : 'Motorized valve',
+        'electrical_meter' =>
+          isFrench ? 'Compteur électrique' : 'Electrical meter',
+        'water_meter' => isFrench ? 'Compteur d’eau' : 'Water meter',
+        'temperature_sensor' =>
+          isFrench ? 'Capteur de température' : 'Temperature sensor',
+        'pressure_transmitter' =>
+          isFrench ? 'Transmetteur de pression' : 'Pressure transmitter',
+        'co2_sensor' => isFrench ? 'Capteur de CO₂' : 'CO₂ sensor',
+        'ddc_controller' => isFrench ? 'Contrôleur DDC' : 'DDC controller',
+        'gateway' => isFrench ? 'Passerelle' : 'Gateway',
+        'other' => isFrench ? 'Autre' : 'Other',
+        _ => code,
+      };
+  String equipmentStatusLabel(String code) => switch (code) {
+        'planned' => isFrench ? 'Prévu' : 'Planned',
+        'installed' => isFrench ? 'Installé' : 'Installed',
+        'commissioned' => isFrench ? 'Mis en service' : 'Commissioned',
+        'active' => isFrench ? 'Actif' : 'Active',
+        'out_of_service' => isFrench ? 'Hors service' : 'Out of service',
+        'retired' => isFrench ? 'Retiré' : 'Retired',
+        _ => code,
+      };
+  String specificationLabel(String key) => switch (key) {
+        'design_airflow_m3_h' =>
+          isFrench ? 'Débit d’air nominal' : 'Design airflow',
+        'design_flow_m3_h' => isFrench ? 'Débit nominal' : 'Design flow',
+        'design_capacity_kw' =>
+          isFrench ? 'Capacité nominale' : 'Design capacity',
+        'rated_power_kw' => isFrench ? 'Puissance nominale' : 'Rated power',
+        _ => key,
+      };
   String zoneTypeLabel(ZoneType type) => switch (type) {
         ZoneType.office => isFrench ? 'Bureau' : 'Office',
         ZoneType.plantRoom => isFrench ? 'Local technique' : 'Plant room',

@@ -16,6 +16,7 @@ class HierarchyScope {
 
   @override
   bool operator ==(Object other) =>
+      other.runtimeType == runtimeType &&
       other is HierarchyScope &&
       other.buildingId == buildingId &&
       other.floorId == floorId;

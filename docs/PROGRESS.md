@@ -1,5 +1,16 @@
 # Progress log
 
+## M2.2D Flutter Equipment Inventory Stage 2 — 2026-11-20
+
+- Added typed, null-safe equipment and engineering specification parsing, a GET-only protected Dio client/repository, and a scope-aware Riverpod controller. Building lists include building-level assets such as `AHU-01`; floor lists filter by `floor_id` and include zone descendants; zone lists filter by floor and zone IDs. Added a drawer building chooser, hierarchy entry actions, guarded list/detail routes, read-only screens, pagination, refresh, safe error/retry states, English/French labels and dark-theme support. Existing Floors and Zones navigation remains available.
+- Added contract, controller and widget tests for parsing, unknown codes, null locations, exact GET paths, scope isolation, pagination, stale responses, offline/auth failures, Back navigation, deep-link guards, localization, dark theme and read-only presentation. Full Flutter suite: 117 passed; `flutter analyze --no-pub`: no issues. Laravel `composer test`: 101 passed, 1 skipped, 800 assertions. Edge: 2 passed. Host web build remains blocked by the known missing GNU Rollup optional binary; the same `npm run build` passed in the running web container. Android and iOS equipment runtime checks remain pending. No Laravel API, migration, database, demonstration asset, production system or physical equipment was changed; no commit or push was made.
+
+
+## M2.2D Flutter Equipment Inventory Stage 1 design — 2026-11-20
+
+- Audited the existing mobile authentication, routing, hierarchy data flow and UI patterns against the implemented Laravel equipment controller, model and OpenAPI contract on `feature/m2-2d-flutter-equipment` from `1549a83`. Recorded the read-only Flutter model, GET-only client, building/floor/zone navigation, state isolation, error policy, English/French and dark-mode UI, test plan and implementation sequence in `docs/M2_2D_FLUTTER_EQUIPMENT_DESIGN.md` for approval.
+- The current list API has no direct-building-only or direct-floor-only filter. Proposed building entry shows all building equipment (including building-level `AHU-01`); floor entry shows floor and its zones; zone entry shows that zone. A direct-floor-only view requires a separate backend contract change. Drawer building selection and timing of optional list filters remain product decisions. No Flutter/Laravel source, migration, database record, production system, credential or physical equipment was changed; no commit or push was made.
+
 ## Android CI Maven Central HTTP 429 mitigation — 2026-11-20
 
 - Audited the mobile workflow and Gradle settings: plugin resolution searches Google Maven, Maven Central, then the Gradle Plugin Portal; project dependencies use Google Maven and Maven Central. There is no `dependencyResolutionManagement` block or existing Gradle User Home cache. The reported failure is a Maven Central HTTP 429 during plugin dependency resolution; the available evidence does not establish that the Plugin Portal causes redundant Maven Central requests. Repository order and dependency versions remain unchanged. No third-party mirror was added; an organization-controlled HTTPS proxy with artifact verification would need its own availability and trust review, while Maven Central's alternate official hostname is not independent infrastructure.

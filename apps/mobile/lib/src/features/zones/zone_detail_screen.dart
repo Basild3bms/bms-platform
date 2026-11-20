@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/localization/app_strings.dart';
@@ -86,6 +87,11 @@ class _ZoneDetailScreenState extends ConsumerState<ZoneDetailScreen> {
               ListTile(
                   title: Text(strings.zoneType),
                   subtitle: Text(strings.zoneTypeLabel(detail.zoneType))),
+              ListTile(
+                  title: Text(strings.browseEquipment),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(
+                      '/buildings/${Uri.encodeComponent(widget.buildingId)}/floors/${Uri.encodeComponent(widget.floorId)}/zones/${Uri.encodeComponent(widget.zoneId)}/equipment')),
             ]),
           HierarchyDetailPhase.unavailable =>
             HierarchyStatus(strings.zoneUnavailable),
