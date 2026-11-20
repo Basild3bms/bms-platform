@@ -82,6 +82,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.50.0'
@@ -137,4 +140,30 @@ jobs:
             fi
             sleep "$((attempt * 10))"
           done
-      - run: flutter build apk --debug
+      - name: Build Android debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          build_log="$(mktemp)"
+          trap 'rm -f -- "$build_log"' EXIT
+
+          for attempt in 1 2 3; do
+            : > "$build_log"
+            echo "Building Android debug APK (attempt $attempt of 3)"
+            if flutter build apk --debug 2>&1 | tee "$build_log"; then
+              exit 0
+            fi
+
+            if ! grep -Eiq 'repo\.maven\.apache\.org|repo1\.maven\.org' "$build_log" ||
+              ! grep -Eiq '(^|[^0-9])429([^0-9]|$)|Too Many Requests' "$build_log" ||
+              grep -Eiq '(^e: .*\.(kt|java):[0-9]+:|Compilation (failed|error)|Execution failed for task .*:(compile|test)|[0-9]+ tests? failed)' "$build_log"; then
+              echo "Android build failed without a retryable Maven Central rate limit" >&2
+              exit 1
+            fi
+
+            if [[ "$attempt" -eq 3 ]]; then
+              echo "Android build still hit Maven Central HTTP 429 after 3 attempts" >&2
+              exit 1
+            fi
+            sleep "$((attempt * 30))"
+          done

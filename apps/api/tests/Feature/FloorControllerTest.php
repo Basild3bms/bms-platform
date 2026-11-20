@@ -74,14 +74,18 @@ class FloorControllerTest extends TestCase
     public function test_hierarchy_migration_rolls_back_only_new_tables(): void
     {
         $migration = require database_path('migrations/2026_11_19_144647_create_floors_and_zones_tables.php');
+        $equipmentMigration = require database_path('migrations/2026_11_20_063357_create_equipment_inventory_tables.php');
 
+        $equipmentMigration->down();
         $migration->down();
         $this->assertFalse(Schema::hasTable('floors'));
         $this->assertFalse(Schema::hasTable('zones'));
         $this->assertTrue(Schema::hasTable('buildings'));
         $migration->up();
+        $equipmentMigration->up();
         $this->assertTrue(Schema::hasTable('floors'));
         $this->assertTrue(Schema::hasTable('zones'));
+        $this->assertTrue(Schema::hasTable('equipment'));
     }
 
     public function test_floor_rejects_expired_revoked_and_inactive_credentials(): void

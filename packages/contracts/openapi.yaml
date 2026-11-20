@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BMS API
-  version: 0.2.2
+  version: 0.2.3
 servers:
   - url: /
 components:
@@ -133,6 +133,74 @@ components:
         name: { type: string, minLength: 1, maxLength: 255 }
         code: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$' }
         zone_type: { type: string, enum: [office, plant_room, common, retail, storage, other] }
+    EquipmentSpecifications:
+      type: object
+      additionalProperties: false
+      description: Version 1 engineering quantities; permitted keys also depend on equipment family.
+      properties:
+        design_airflow_m3_h: { type: number, exclusiveMinimum: 0, maximum: 1000000000 }
+        design_flow_m3_h: { type: number, exclusiveMinimum: 0, maximum: 1000000000 }
+        design_capacity_kw: { type: number, exclusiveMinimum: 0, maximum: 1000000000 }
+        rated_power_kw: { type: number, minimum: 0, maximum: 1000000000 }
+    Equipment:
+      type: object
+      required: [id, organization_id, building_id, floor_id, zone_id, code, name, description, type_code, manufacturer, model, serial_number, lifecycle_status, installed_on, commissioned_on, specifications, spec_schema_version, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        organization_id: { type: string, format: uuid }
+        building_id: { type: string, format: uuid }
+        floor_id: { type: [string, 'null'], format: uuid }
+        zone_id: { type: [string, 'null'], format: uuid }
+        code: { type: string, maxLength: 64, pattern: '^[A-Z0-9][A-Z0-9_-]*$' }
+        name: { type: string, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 5000 }
+        type_code: { type: string, description: Active code in equipment_types. }
+        manufacturer: { type: [string, 'null'], maxLength: 255 }
+        model: { type: [string, 'null'], maxLength: 255 }
+        serial_number: { type: [string, 'null'], maxLength: 255 }
+        lifecycle_status: { type: string, enum: [planned, installed, commissioned, active, out_of_service, retired] }
+        installed_on: { type: [string, 'null'], format: date }
+        commissioned_on: { type: [string, 'null'], format: date }
+        specifications: { oneOf: [{ $ref: '#/components/schemas/EquipmentSpecifications' }, { type: 'null' }] }
+        spec_schema_version: { type: [integer, 'null'], enum: [1, null] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    EquipmentInput:
+      type: object
+      additionalProperties: false
+      description: IDs and location come only from the URL. Supply spec_schema_version 1 with specifications. Type other requires description.
+      required: [code, name, type_code]
+      properties:
+        code: { type: string, maxLength: 64, description: Trimmed and uppercased by the server; ASCII letters, digits, hyphens and underscores. }
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 5000 }
+        type_code: { type: string, description: Active code in equipment_types. }
+        manufacturer: { type: [string, 'null'], maxLength: 255 }
+        model: { type: [string, 'null'], maxLength: 255 }
+        serial_number: { type: [string, 'null'], maxLength: 255 }
+        lifecycle_status: { type: string, enum: [planned, installed, commissioned, active, out_of_service, retired], default: planned }
+        installed_on: { type: [string, 'null'], format: date }
+        commissioned_on: { type: [string, 'null'], format: date }
+        specifications: { oneOf: [{ $ref: '#/components/schemas/EquipmentSpecifications' }, { type: 'null' }] }
+        spec_schema_version: { type: [integer, 'null'], enum: [1, null] }
+    EquipmentPatch:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      description: Mutable business fields only; location and tenant identifiers are rejected.
+      properties:
+        code: { type: string, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 5000 }
+        type_code: { type: string }
+        manufacturer: { type: [string, 'null'], maxLength: 255 }
+        model: { type: [string, 'null'], maxLength: 255 }
+        serial_number: { type: [string, 'null'], maxLength: 255 }
+        lifecycle_status: { type: string, enum: [planned, installed, commissioned, active, out_of_service, retired] }
+        installed_on: { type: [string, 'null'], format: date }
+        commissioned_on: { type: [string, 'null'], format: date }
+        specifications: { oneOf: [{ $ref: '#/components/schemas/EquipmentSpecifications' }, { type: 'null' }] }
+        spec_schema_version: { type: [integer, 'null'], enum: [1, null] }
 paths:
   /api/v1/status:
     get:
@@ -535,6 +603,175 @@ paths:
         '403': { description: Active member without zones.manage }
         '404': { description: 'Organization, building, floor, or zone is inaccessible or absent' }
         '422': { description: 'Invalid fields, duplicate code, or client-supplied parent IDs' }
+  /api/v1/organizations/{organization}/buildings/{building}/equipment:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: listEquipment
+      summary: List physical equipment in an authorized building
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: type_code, in: query, schema: { type: string } }
+        - { name: lifecycle_status, in: query, schema: { type: string, enum: [planned, installed, commissioned, active, out_of_service, retired] } }
+        - { name: floor_id, in: query, schema: { type: string, format: uuid } }
+        - { name: zone_id, in: query, schema: { type: string, format: uuid } }
+        - { name: q, in: query, schema: { type: string, minLength: 1, maxLength: 100 } }
+      responses:
+        '200':
+          description: Equipment ordered by code and ID
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Equipment' } }
+                  meta:
+                    type: object
+                    required: [current_page, per_page, total, last_page]
+                    properties:
+                      current_page: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      last_page: { type: integer }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.view }
+        '404': { description: Organization or building inaccessible or absent }
+        '422': { description: Invalid filter or pagination }
+        '429': { description: Rate limit exceeded }
+    post:
+      operationId: createBuildingEquipment
+      summary: Create building-level equipment
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EquipmentInput' }
+      responses:
+        '201':
+          description: Equipment created and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Equipment' }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.manage }
+        '404': { description: Organization or building inaccessible or absent }
+        '422': { description: Invalid fields, duplicate code, or supplied parent IDs }
+        '429': { description: Rate limit exceeded }
+  /api/v1/organizations/{organization}/buildings/{building}/floors/{floor}/equipment:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: floor, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: createFloorEquipment
+      summary: Create floor-level equipment
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EquipmentInput' }
+      responses:
+        '201':
+          description: Equipment created and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Equipment' }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.manage }
+        '404': { description: Organization, building or floor inaccessible or absent }
+        '422': { description: Invalid fields, duplicate code, or supplied parent IDs }
+        '429': { description: Rate limit exceeded }
+  /api/v1/organizations/{organization}/buildings/{building}/floors/{floor}/zones/{zone}/equipment:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: floor, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: zone, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: createZoneEquipment
+      summary: Create zone-level equipment
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EquipmentInput' }
+      responses:
+        '201':
+          description: Equipment created and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Equipment' }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.manage }
+        '404': { description: Organization, building, floor or zone inaccessible or absent }
+        '422': { description: Invalid fields, duplicate code, or supplied parent IDs }
+        '429': { description: Rate limit exceeded }
+  /api/v1/organizations/{organization}/buildings/{building}/equipment/{equipment}:
+    parameters:
+      - { name: organization, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: building, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: equipment, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      operationId: getEquipment
+      summary: Get physical equipment in an authorized building
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Equipment detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Equipment' }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.view }
+        '404': { description: Organization, building or equipment inaccessible or absent }
+        '429': { description: Rate limit exceeded }
+    patch:
+      operationId: updateEquipment
+      summary: Update equipment business fields, including audited retirement
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EquipmentPatch' }
+      responses:
+        '200':
+          description: Equipment updated and audited
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Equipment' }
+        '401': { description: Missing or invalid bearer token, or inactive account }
+        '403': { description: Active member without equipment.manage }
+        '404': { description: Organization, building or equipment inaccessible or absent }
+        '422': { description: Invalid fields, duplicate code, or supplied parent IDs }
+        '429': { description: Rate limit exceeded }
   /api/v1/organizations/{organization}/users:
     parameters:
       - name: organization

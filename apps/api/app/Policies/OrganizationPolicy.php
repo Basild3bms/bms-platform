@@ -55,6 +55,16 @@ class OrganizationPolicy
         return $this->permission($user, $organization, 'zones.manage');
     }
 
+    public function viewEquipment(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'equipment.view');
+    }
+
+    public function manageEquipment(User $user, Organization $organization): Response
+    {
+        return $this->permission($user, $organization, 'equipment.manage');
+    }
+
     public function assignRole(User $user, Organization $organization, string $role): Response
     {
         $membership = $this->membership($user, $organization);
