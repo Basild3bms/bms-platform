@@ -1,8 +1,8 @@
 # M2.2D Stage 1 — Equipment Inventory architecture audit
 
-Date: 2026-11-20  
-Branch: `feature/m2-2d-equipment-inventory`  
-Baseline: `6f0847a`  
+Date: 2026-11-20
+Branch: `feature/m2-2d-equipment-inventory`
+Baseline: `6f0847a`
 Status: Stage 1 proposal with recorded Stage 2 implementation decisions.
 
 ## Stage 2 implementation decisions (2026-11-20)
