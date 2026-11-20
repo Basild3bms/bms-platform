@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../features/auth/auth_models.dart';
 import '../../features/buildings/building_models.dart';
+import '../../features/zones/zone_models.dart';
 
 class AppStrings {
   const AppStrings(this.languageCode);
@@ -113,6 +114,52 @@ class AppStrings {
   String get code => isFrench ? 'Code' : 'Code';
   String get refreshBuildings =>
       isFrench ? 'Actualiser les bâtiments' : 'Refresh buildings';
+  String get building => isFrench ? 'Bâtiment' : 'Building';
+  String get floors => isFrench ? 'Étages' : 'Floors';
+  String get floor => isFrench ? 'Étage' : 'Floor';
+  String get browseFloors => isFrench ? 'Voir les étages' : 'Browse floors';
+  String get loadingFloors =>
+      isFrench ? 'Chargement des étages…' : 'Loading floors…';
+  String get noFloors => isFrench
+      ? 'Aucun étage dans ce bâtiment.'
+      : 'No floors in this building.';
+  String get floorUnavailable =>
+      isFrench ? 'Étage indisponible.' : 'Floor unavailable.';
+  String get level => isFrench ? 'Niveau' : 'Level';
+  String get zones => isFrench ? 'Zones' : 'Zones';
+  String get zone => isFrench ? 'Zone' : 'Zone';
+  String get browseZones => isFrench ? 'Voir les zones' : 'Browse zones';
+  String get loadingZones =>
+      isFrench ? 'Chargement des zones…' : 'Loading zones…';
+  String get noZones =>
+      isFrench ? 'Aucune zone à cet étage.' : 'No zones on this floor.';
+  String get zoneUnavailable =>
+      isFrench ? 'Zone indisponible.' : 'Zone unavailable.';
+  String get zoneType => isFrench ? 'Type de zone' : 'Zone type';
+  String zoneTypeLabel(ZoneType type) => switch (type) {
+        ZoneType.office => isFrench ? 'Bureau' : 'Office',
+        ZoneType.plantRoom => isFrench ? 'Local technique' : 'Plant room',
+        ZoneType.common => isFrench ? 'Espace commun' : 'Common area',
+        ZoneType.retail => isFrench ? 'Commerce' : 'Retail',
+        ZoneType.storage => isFrench ? 'Stockage' : 'Storage',
+        ZoneType.other => isFrench ? 'Autre' : 'Other',
+      };
+  String hierarchyFailureMessage(
+          BuildingFailureKind? kind, String unavailable) =>
+      switch (kind) {
+        BuildingFailureKind.network ||
+        BuildingFailureKind.timeout =>
+          networkError,
+        BuildingFailureKind.rateLimited => rateLimited,
+        BuildingFailureKind.unauthorized => sessionExpired,
+        BuildingFailureKind.forbidden ||
+        BuildingFailureKind.notFound =>
+          unavailable,
+        BuildingFailureKind.invalidResponse => isFrench
+            ? 'Réponse du serveur invalide. Réessayez.'
+            : 'Invalid server response. Try again.',
+        _ => serviceError,
+      };
   String buildingFailureMessage(BuildingFailureKind? kind) => switch (kind) {
         BuildingFailureKind.network ||
         BuildingFailureKind.timeout =>

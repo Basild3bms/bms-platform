@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/localization/app_strings.dart';
@@ -68,6 +69,11 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
                   subtitle: Text(detail.address!)),
             ListTile(
                 title: Text(strings.timezone), subtitle: Text(detail.timezone)),
+            ListTile(
+                title: Text(strings.browseFloors),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                    '/buildings/${Uri.encodeComponent(widget.buildingId)}/floors')),
           ]),
         _ => Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [

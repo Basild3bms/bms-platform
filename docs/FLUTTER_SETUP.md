@@ -1,5 +1,9 @@
 # Flutter setup
 
+The supplied Windows 11 runtime report for M2.2C.3 commit `9d94787` records a successful debug build (141.6 seconds), install, and launch on `emulator-5554`. It reports all 15 manual checks passing, including three floors, basement level -1 and zones, Floors refresh, offline recovery, French and dark-mode screens, and logout/back/reopen protection. This is Windows runtime evidence supplied for documentation; WSL did not rerun the emulator. iOS, switching between two distinct organizations, Buildings pull-to-refresh, and release-mode performance remain to validate. Startup skipped-frame warnings were observed.
+
+For repeat M2.2C.3 runtime validation, build and run a debug APK against the local API. Sign in, open the demonstration building, verify three floor entries including basement level -1, and open its zones to verify the plant-room type. Check list refresh, detail, back navigation, offline error and recovery, organization reselection, logout/back/reopen, and a deep link opened while signed out. Use macOS/Xcode separately for iOS. WSL Flutter tests and analyzer do not substitute for runtime checks. Do not alter demonstration records or use production equipment.
+
 The mobile app targets Flutter 3.50.0, Dart 3.14.0, and Material UI 1.11.1. Android and iOS runners were generated with Flutter 3.50.0. Android uses application ID `com.bms.mobile` and API 24 minimum; iOS uses bundle ID `com.bms.mobile` and iOS 15 minimum. Confirm ownership of these identifiers before store distribution and configure release signing separately. No signing key is stored in Git. The app's Android backup is disabled to avoid restoring encrypted token data without its Keystore key.
 
 From `apps/mobile`:
